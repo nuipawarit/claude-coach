@@ -53,7 +53,7 @@ Rendered output opened with:
 > 🚧 **Prompt gate**: prompt too vague for substantial build — no target project, no data, no scope. Wrong guess wastes real work.
 >
 > **Suggested prompt (recommended):**
-> "Build a dashboard in `<project — happywork-frontend? claude-coach?>` ..."
+> "Build a dashboard in `<project — <private-project>? claude-coach?>` ..."
 >
 > **Or reply "use original"** — proceed as-is, Claude picks project, data, layout itself.
 ```
