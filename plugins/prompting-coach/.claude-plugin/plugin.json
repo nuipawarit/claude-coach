@@ -1,0 +1,8 @@
+{
+  "name": "prompting-coach",
+  "version": "0.1.0",
+  "description": "Coach for prompt quality - evaluates every prompt against Anthropic's prompting best practices, opens responses with a compact verdict, and gates severely under-specified requests before work starts.",
+  "author": { "name": "nhui" },
+  "license": "MIT",
+  "keywords": ["prompting", "coaching", "best-practices", "hooks"]
+}
