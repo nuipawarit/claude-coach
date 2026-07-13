@@ -1,6 +1,6 @@
 ---
 name: english-coach
-description: For Thai-speaking users - append an English-learning block at the END of every response. Translates Thai prompts to corrected English (Format A), corrects English errors with a Thai why-tip (Format B), or praises correct English and offers an idiomatic upgrade (Format C). Enforced by this plugin's hook.
+description: For Thai-speaking users - append an English-learning block at the END of every response. Translates Thai prompts to corrected English (Format A), corrects English errors with a Thai why-tip (Format B), or praises correct English with an idiomatic upgrade (Format C). Enforced by this plugin's hook.
 ---
 
 # english-coach
