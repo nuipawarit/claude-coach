@@ -1,0 +1,20 @@
+{
+  "name": "claude-coach",
+  "owner": { "name": "nhui" },
+  "plugins": [
+    {
+      "name": "prompting-coach",
+      "source": "./plugins/prompting-coach",
+      "description": "Prompt-quality coach: verdict block on every response, pre-flight gate for under-specified requests. Turn off anytime with /prompting-coach:toggle off",
+      "category": "productivity",
+      "keywords": ["prompting", "coaching", "best-practices"]
+    },
+    {
+      "name": "english-coach",
+      "source": "./plugins/english-coach",
+      "description": "English coaching for Thai developers: every prompt becomes a mini English lesson appended to the response. Turn off anytime with /english-coach:toggle off",
+      "category": "learning",
+      "keywords": ["english", "thai", "language-learning", "coaching"]
+    }
+  ]
+}
