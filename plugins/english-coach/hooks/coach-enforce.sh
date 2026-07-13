@@ -1,8 +1,13 @@
 #!/bin/sh
 # UserPromptSubmit hook: inject english-coach enforcement unless disabled.
 # POSIX sh only. Fail-open: always exit 0.
-DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/english-coach-data}"
-CONF="$DATA_DIR/config"
+FALLBACK_DIR="$HOME/.claude/english-coach-data"
+CONF="$FALLBACK_DIR/config"
+# The toggle skill's Bash-tool commands run without CLAUDE_PLUGIN_DATA set
+# (verified: empty in that context) so it always writes to FALLBACK_DIR.
+# Read from there first so toggle state actually takes effect; only fall
+# back to CLAUDE_PLUGIN_DATA/config if the fixed path has never been written.
+[ -f "$CONF" ] || CONF="${CLAUDE_PLUGIN_DATA:-$FALLBACK_DIR}/config"
 enabled=1
 if [ -f "$CONF" ]; then
   while IFS='=' read -r k v; do
