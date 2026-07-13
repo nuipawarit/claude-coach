@@ -1,5 +1,6 @@
 {
   "name": "claude-coach",
+  "description": "Two opinionated coaching plugins for Claude Code: prompting-coach and english-coach",
   "owner": { "name": "nhui" },
   "plugins": [
     {
