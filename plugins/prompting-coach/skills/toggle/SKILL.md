@@ -6,9 +6,9 @@ description: Turn prompting-coach on or off, or set the coaching commentary lang
 # prompting-coach toggle
 
 Manage the prompting-coach plugin state. The state file is `key=value` lines at
-`${CLAUDE_PLUGIN_DATA}/config`, falling back to `$HOME/.claude/prompting-coach-data/config`
-when `CLAUDE_PLUGIN_DATA` is not set. The plugin's UserPromptSubmit hook reads this file
-on every prompt.
+`$HOME/.claude/prompting-coach-data/config` (the primary path). The plugin's UserPromptSubmit
+hook reads this file first and falls back to `${CLAUDE_PLUGIN_DATA}/config` only when the
+primary file does not exist. The hook reads on every prompt.
 
 ## Behavior
 
@@ -18,7 +18,7 @@ the matching shell command with the Bash tool and report the resulting state in 
 Resolve the directory first (same logic in every command):
 
 ```sh
-DATA_DIR="${CLAUDE_PLUGIN_DATA:-$HOME/.claude/prompting-coach-data}"; mkdir -p "$DATA_DIR"
+DATA_DIR="$HOME/.claude/prompting-coach-data"; mkdir -p "$DATA_DIR"
 ```
 
 - `on` — keep current `lang` if the file exists, else default `en`:
