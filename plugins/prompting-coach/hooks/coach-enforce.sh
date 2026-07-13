@@ -7,11 +7,14 @@ CONF="$FALLBACK_DIR/config"
 # (verified: empty in that context) so it always writes to FALLBACK_DIR.
 # Read from there first so toggle state actually takes effect; only fall
 # back to CLAUDE_PLUGIN_DATA/config if the fixed path has never been written.
+# Forward-compat only: nothing writes here today (toggle writes the primary path).
 [ -f "$CONF" ] || CONF="${CLAUDE_PLUGIN_DATA:-$FALLBACK_DIR}/config"
 enabled=1
 lang=en
 if [ -f "$CONF" ]; then
-  while IFS='=' read -r k v; do
+  CR=$(printf '\r')
+  while IFS='=' read -r k v || [ -n "$k" ]; do
+    v=${v%"$CR"}
     case "$k" in
       enabled) enabled="$v" ;;
       lang) lang="$v" ;;

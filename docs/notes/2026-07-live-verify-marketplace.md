@@ -185,6 +185,8 @@ debug log shows `PROMPTING-COACH ENFORCEMENT: ... Commentary language: th.`
 - `~/.claude/english-coach-data/config`: never toggled during this run — no
   file exists, which the hook's own default (`enabled=1`) treats as enabled.
 
+Config state was touched again during the follow-up verification of commit 6e78535: `~/.claude/prompting-coach-data/config` was reset to `enabled=1, lang=en` and `~/.claude/english-coach-data/config` was created with `enabled=1` — superseding the state described above.
+
 ## Open concern for follow-up
 
 Row 2's rendered-level miss is a real, reproducible (3/3) gap in output
