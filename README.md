@@ -13,7 +13,7 @@ Two opinionated coaching plugins for Claude Code:
 ## Install
 
 ```
-/plugin marketplace add nhui/claude-coach
+/plugin marketplace add nuipawarit/claude-coach
 /plugin install prompting-coach@claude-coach
 /plugin install english-coach@claude-coach
 ```
