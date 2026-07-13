@@ -55,5 +55,6 @@ curl -fsS http://127.0.0.1:18789/readyz    # {"ready":true}
 
 - **Task 12 (Discord token):** ใส่ `DISCORD_BOT_TOKEN=<token>` ใน `~/.openclaw/.env` (config dir mount — OpenClaw resolve env SecretRef ตอน restart) แล้ว restart gateway; ใช้ `openclaw/discord.patch.json5` จาก repo ตามเดิมผ่าน `config patch`
 - **Task 13 (workspace):** copy assets ไป `~/.openclaw/workspace` บน host ได้ตรงๆ (mount แล้ว)
-- Restart daemon = `cd ~/Projects/openclaw && docker compose down && docker compose up -d openclaw-gateway`
+- **ทุกคำสั่ง compose ต้องใส่ `-f docker-compose.yml -f docker-compose.extra.yml` เสมอ** — extra file เป็นตัว mount volume `openclaw_home` (`/home/node` = claude CLI + OAuth) เข้า gateway; restart โดยไม่ใส่จะได้ container ที่ไม่มี claude binary → agent turn ตาย `write EPIPE` (พลาดจริงมาแล้ว — ดู `2026-07-live-verify-discord.md` รอบที่ 1)
+- Restart daemon = `cd ~/Projects/openclaw && docker compose -f docker-compose.yml -f docker-compose.extra.yml down && docker compose -f docker-compose.yml -f docker-compose.extra.yml up -d openclaw-gateway`
 - คำสั่ง CLI ทุกตัว = `cd ~/Projects/openclaw && docker compose -f docker-compose.yml -f docker-compose.extra.yml run -T --rm openclaw-cli <command>`
