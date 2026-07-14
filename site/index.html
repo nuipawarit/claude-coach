@@ -103,6 +103,10 @@
   #site[data-lang="en"] .t-th { display: none; }
   #site[data-lang="th"] .t-en { display: none; }
 
+  /* ---------- platform toggle ---------- */
+  #site[data-platform="cc"] .p-dc { display: none; }
+  #site[data-platform="dc"] .p-cc { display: none; }
+
   .wrap { max-width: 1020px; margin: 0 auto; padding: 0 24px; }
 
   a { color: var(--whistle); text-underline-offset: 3px; }
@@ -351,6 +355,7 @@
   .term-sm .term-bar .dot { width: 9px; height: 9px; }
   .term-sm .term-body { padding: 14px 16px 16px; }
   .term-sm .cb { margin: 10px 0; }
+  .term + .term { margin-top: 20px; }
 
   .win-caption {
     font-size: 0.9rem;
@@ -564,6 +569,11 @@
     flex: none;
   }
   .copy:hover { color: var(--term-ink); border-color: var(--term-dim); }
+  .install-steps { list-style: none; display: flex; flex-direction: column; gap: 32px; }
+  .install-steps h4 { font-family: var(--font-display); font-size: 1rem; margin-bottom: 8px; }
+  .install-steps > li > p { color: var(--chalk-dim); max-width: 66ch; margin-bottom: 12px; }
+  .install-steps > li > p strong { color: var(--chalk); font-weight: 600; }
+  .install-steps .term { margin-bottom: 4px; }
   .install-note { margin-top: 14px; color: var(--chalk-dim); font-size: 0.92rem; }
   .install-note code {
     font-family: var(--font-mono);
@@ -595,6 +605,31 @@
     color: var(--score);
   }
 
+  /* ---------- platform tab bar ---------- */
+  .ptab-bar {
+    display: flex;
+    gap: 28px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 36px;
+  }
+  .ptab {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--chalk-dim);
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    padding: 0 0 12px;
+    cursor: pointer;
+  }
+  .ptab:hover { color: var(--chalk); }
+  .ptab[aria-selected="true"][data-platform="cc"] { color: var(--chalk); border-bottom-color: var(--whistle); }
+  .ptab[aria-selected="true"][data-platform="dc"] { color: var(--chalk); border-bottom-color: #5865F2; }
+  @media (max-width: 480px) { .ptab-bar { gap: 18px; flex-wrap: wrap; } }
+
   /* ---------- playbook (manual) ---------- */
   #playbook { padding-top: 44px; }
   .playbook-layout { display: grid; grid-template-columns: 220px 1fr; gap: 44px; align-items: start; }
@@ -613,6 +648,7 @@
     margin-bottom: 12px;
   }
   @media (max-width: 900px) { .toc .toc-title { display: none; } }
+  .toc .p-cc, .toc .p-dc { display: contents; }
   .toc a {
     display: block;
     font-family: var(--font-display);
@@ -697,14 +733,13 @@
   footer .wrap { display: flex; gap: 8px 24px; flex-wrap: wrap; }
 </style>
 
-<div id="site" data-lang="en">
+<div id="site" data-lang="en" data-platform="cc">
 
 <nav aria-label="Page">
   <div class="wrap">
     <a class="wordmark" href="#top"><span class="whistle-mark">📣</span> claude·coach</a>
     <div class="links">
-      <a href="#cli">Terminal</a>
-      <a href="#discord">Discord</a>
+      <a href="#showcase">Showcase</a>
       <a href="#install">Install</a>
       <a href="#playbook">Playbook</a>
       <a href="https://github.com/nuipawarit/claude-coach">GitHub</a>
@@ -735,7 +770,7 @@
     </p>
     <div class="cta-row">
       <a class="btn btn-primary" href="#install"><span class="t-en">Install in 3 commands</span><span class="t-th">ติดตั้งด้วย 3 คำสั่ง</span></a>
-      <a class="btn btn-ghost" href="#cli"><span class="t-en">Watch the drills</span><span class="t-th">ดูตัวอย่างจริง</span></a>
+      <a class="btn btn-ghost" href="#showcase"><span class="t-en">Watch the drills</span><span class="t-th">ดูตัวอย่างจริง</span></a>
     </div>
   </div>
 </header>
@@ -779,8 +814,13 @@
   </div>
 </div>
 
-<section id="cli">
+<section id="showcase">
   <div class="wrap">
+    <div class="ptab-bar" role="tablist" aria-label="Platform">
+      <button class="ptab" type="button" data-platform="cc" role="tab" aria-selected="true">Claude Code</button>
+      <button class="ptab" type="button" data-platform="dc" role="tab" aria-selected="false">OpenClaw + Discord</button>
+    </div>
+    <div class="p-cc">
     <div class="section-head">
       <p class="eyebrow">home ground · claude cli <span class="scoreboard">DRILLS 04</span></p>
       <h2>
@@ -898,11 +938,8 @@
       </div>
 
     </div>
-  </div>
-</section>
-
-<section id="discord">
-  <div class="wrap">
+    </div>
+    <div class="p-dc">
     <div class="section-head">
       <p class="eyebrow">away game · discord <span class="scoreboard">DRILLS 03</span></p>
       <h2>
@@ -1019,7 +1056,7 @@
               a self-hosted gateway that puts Claude in your server. The workspace in this repo adds:</span>
             <span class="t-th">Discord coach รันบน
               <a href="https://github.com/nuipawarit/claude-coach/tree/main/openclaw">OpenClaw</a> —
-              gateway แบบ self-host ที่พา Claude เข้า server ของคุณ workspace ใน repo นี้เพิ่ม:</span>
+              gateway แบบ self-host ที่พา Claude เข้า server ของคุณ — workspace ใน repo นี้เพิ่ม:</span>
           </p>
           <ul>
             <li><span class="t-en">the same two coaching formats as the CLI plugins</span><span class="t-th">ฟอร์แมตโค้ชสองแบบเดียวกับ plugin ฝั่ง CLI</span></li>
@@ -1030,6 +1067,7 @@
       </div>
 
     </div>
+    </div>
   </div>
 </section>
 
@@ -1038,14 +1076,21 @@
     <div class="section-head">
       <p class="eyebrow">kick-off</p>
       <h2>
-        <span class="t-en">Three commands, <em>inside Claude Code</em></span>
-        <span class="t-th">3 คำสั่ง <em>ใน Claude Code</em></span>
+        <span class="t-en">Two rosters, <em>one repo</em></span>
+        <span class="t-th">2 ชุดโค้ช <em>repo เดียว</em></span>
       </h2>
     </div>
+
+    <div class="ptab-bar" role="tablist" aria-label="Platform">
+      <button class="ptab" type="button" data-platform="cc" role="tab" aria-selected="true">Claude Code</button>
+      <button class="ptab" type="button" data-platform="dc" role="tab" aria-selected="false">OpenClaw + Discord</button>
+    </div>
+
+    <div class="p-cc">
     <div class="term term-sm">
       <div class="term-bar">
         <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        <span class="term-title">claude — install</span>
+        <span class="term-title">claude — inside Claude Code</span>
       </div>
       <div class="term-body">
         <div class="install-line">
@@ -1065,14 +1110,165 @@
         </div>
       </div>
     </div>
+    <div class="term term-sm">
+      <div class="term-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="term-title">shell — from your terminal</span>
+      </div>
+      <div class="term-body">
+        <div class="install-line">
+          <span class="chev">❯</span>
+          <code>claude plugin marketplace add nuipawarit/claude-coach</code>
+          <button class="copy" data-cmd="claude plugin marketplace add nuipawarit/claude-coach">copy</button>
+        </div>
+        <div class="install-line">
+          <span class="chev">❯</span>
+          <code>claude plugin install prompting-coach@claude-coach</code>
+          <button class="copy" data-cmd="claude plugin install prompting-coach@claude-coach">copy</button>
+        </div>
+        <div class="install-line">
+          <span class="chev">❯</span>
+          <code>claude plugin install english-coach@claude-coach</code>
+          <button class="copy" data-cmd="claude plugin install english-coach@claude-coach">copy</button>
+        </div>
+      </div>
+    </div>
+    <div class="term term-sm">
+      <div class="term-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="term-title">verify</span>
+      </div>
+      <div class="term-body">
+        <div class="install-line">
+          <span class="chev">❯</span>
+          <code>claude plugin list</code>
+          <button class="copy" data-cmd="claude plugin list">copy</button>
+        </div>
+        <div class="install-line">
+          <span class="chev">❯</span>
+          <code>claude plugin details prompting-coach@claude-coach</code>
+          <button class="copy" data-cmd="claude plugin details prompting-coach@claude-coach">copy</button>
+        </div>
+      </div>
+    </div>
     <p class="install-note">
       <span class="t-en">Step 1 registers the marketplace; steps 2–3 are independent — install
         only the coach you want. The plugins are POSIX sh hooks plus skills, fetched straight from GitHub.
-        Discord setup is its own play — see <code>PLAY 03</code> below.</span>
+        <code>plugin list</code> should show both plugins enabled; <code>details</code> shows the hook +
+        skills inventory and projected token cost. Discord runs a different track —
+        switch to the <strong>OpenClaw + Discord</strong> tab above.</span>
       <span class="t-th">คำสั่งแรกลงทะเบียน marketplace; ข้อ 2–3 อิสระต่อกัน — ลงเฉพาะโค้ชที่อยากได้
         ตัว plugin เป็น POSIX sh hooks + skills ดึงตรงจาก GitHub
-        ส่วน Discord มี play ของตัวเอง — ดู <code>PLAY 03</code> ข้างล่าง</span>
+        <code>plugin list</code> ต้องเห็นทั้งสอง plugin เป็น enabled; <code>details</code>
+        โชว์ hook + skills และ token cost โดยประมาณ ส่วน Discord เป็นคนละ track — สลับไปแท็บ
+        <strong>OpenClaw + Discord</strong> ด้านบน</span>
     </p>
+    </div>
+
+    <div class="p-dc">
+    <ol class="install-steps">
+
+      <li>
+        <h4><span class="t-en">1. Prerequisites</span><span class="t-th">1. สิ่งที่ต้องมีก่อน</span></h4>
+        <p>
+          <span class="t-en">This assumes you already have a self-hosted OpenClaw Discord bot running — see the
+            <a href="https://docs.openclaw.ai">OpenClaw docs</a> for standing one up. The only other requirement
+            is this repo cloned somewhere on the same machine, since the next step copies coaching assets straight
+            out of it.</span>
+          <span class="t-th">ขั้นนี้สมมติว่าคุณมี OpenClaw Discord bot ที่ self-host รันอยู่แล้ว — ดูวิธีตั้ง instance ได้ที่
+            <a href="https://docs.openclaw.ai">OpenClaw docs</a> อีกอย่างที่ต้องมีคือ clone repo นี้ไว้ในเครื่องเดียวกัน
+            เพราะขั้นถัดไปจะ copy asset โค้ชออกมาจาก repo ตรงๆ</span>
+        </p>
+      </li>
+
+      <li>
+        <h4><span class="t-en">2. Drop the coaching assets into your OpenClaw workspace</span><span class="t-th">2. ใส่ asset โค้ชเข้า OpenClaw workspace ของคุณ</span></h4>
+        <p>
+          <span class="t-en">Clone this repo, then it's a plain file copy into your OpenClaw workspace's
+            <code>skills/</code> dir — no special tooling required. Copy the three Discord skills in, append the
+            coaching rules to <code>AGENTS.md</code> (loaded once at session start), then restart your OpenClaw
+            instance however you run it so it picks up the new context. Running it in Docker? The compose command
+            below is that deployment's restart — swap in your own if you run OpenClaw a different way.</span>
+          <span class="t-th">clone repo นี้มาก่อน แล้วที่เหลือคือ copy ไฟล์ธรรมดาเข้า <code>skills/</code> ของ
+            OpenClaw workspace — ไม่ต้องใช้เครื่องมือพิเศษ copy skill ทั้งสามตัวเข้าไป ต่อกติกาโค้ชเข้า
+            <code>AGENTS.md</code> (โหลดครั้งเดียวตอน session เริ่ม)
+            แล้ว restart OpenClaw ตามวิธีที่คุณรันอยู่ให้อ่าน context ใหม่ ถ้ารันด้วย Docker คำสั่ง compose
+            ด้านล่างคือตัวอย่าง restart ของ deployment นั้น — ถ้ารันแบบอื่นก็สลับเป็นคำสั่งของคุณเอง</span>
+        </p>
+        <div class="term term-sm">
+          <div class="term-bar">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="term-title">shell — clone + copy skills + AGENTS.md</span>
+          </div>
+          <div class="term-body">
+            <div class="install-line">
+              <span class="chev">❯</span>
+              <code>git clone https://github.com/nuipawarit/claude-coach.git</code>
+              <button class="copy" data-cmd="git clone https://github.com/nuipawarit/claude-coach.git">copy</button>
+            </div>
+            <div class="install-line">
+              <span class="chev">❯</span>
+              <code>mkdir -p ~/.openclaw/workspace/skills</code>
+              <button class="copy" data-cmd="mkdir -p ~/.openclaw/workspace/skills">copy</button>
+            </div>
+            <div class="install-line">
+              <span class="chev">❯</span>
+              <code>cp -R claude-coach/openclaw/skills/{coach,prompting-coach-discord,english-coach-discord} ~/.openclaw/workspace/skills/</code>
+              <button class="copy" data-cmd="cp -R claude-coach/openclaw/skills/{coach,prompting-coach-discord,english-coach-discord} ~/.openclaw/workspace/skills/">copy</button>
+            </div>
+            <div class="install-line">
+              <span class="chev">❯</span>
+              <code>cat claude-coach/openclaw/AGENTS-coaching-section.md &gt;&gt; ~/.openclaw/workspace/AGENTS.md</code>
+              <button class="copy" data-cmd="cat claude-coach/openclaw/AGENTS-coaching-section.md >> ~/.openclaw/workspace/AGENTS.md">copy</button>
+            </div>
+            <p class="dim"><span class="t-en"># Docker deployment example — restart however you run OpenClaw otherwise</span><span class="t-th"># ตัวอย่างสำหรับ Docker deployment — ถ้ารันแบบอื่นก็ restart ตามวิธีของคุณเอง</span></p>
+            <div class="install-line">
+              <span class="chev">❯</span>
+              <code>docker compose -f docker-compose.yml -f docker-compose.extra.yml down &amp;&amp; docker compose -f docker-compose.yml -f docker-compose.extra.yml up -d openclaw-gateway</code>
+              <button class="copy" data-cmd="docker compose -f docker-compose.yml -f docker-compose.extra.yml down && docker compose -f docker-compose.yml -f docker-compose.extra.yml up -d openclaw-gateway">copy</button>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <h4><span class="t-en">3. Verify the bot answers</span><span class="t-th">3. เช็คว่าบอทตอบจริง</span></h4>
+        <p>
+          <span class="t-en">Poll the gateway's health endpoints from the host, then check Discord itself: the bot
+            should show <strong>Online</strong>, reply to a normal message with a coached spoiler attached, and
+            respond to <code>/coach status</code> with its current settings.</span>
+          <span class="t-th">poll health endpoint ของ gateway จาก host ก่อน แล้วไปเช็คที่ Discord: บอทต้องขึ้น
+            <strong>Online</strong>, ตอบข้อความปกติพร้อม spoiler โค้ชแนบมา และตอบ <code>/coach status</code>
+            ด้วยค่าปัจจุบัน</span>
+        </p>
+        <div class="term term-sm">
+          <div class="term-bar">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="term-title">verify</span>
+          </div>
+          <div class="term-body">
+            <div class="install-line">
+              <span class="chev">❯</span>
+              <code>curl -fsS http://127.0.0.1:18789/healthz</code>
+              <button class="copy" data-cmd="curl -fsS http://127.0.0.1:18789/healthz">copy</button>
+            </div>
+            <div class="install-line">
+              <span class="chev">❯</span>
+              <code>curl -fsS http://127.0.0.1:18789/readyz</code>
+              <button class="copy" data-cmd="curl -fsS http://127.0.0.1:18789/readyz">copy</button>
+            </div>
+          </div>
+        </div>
+      </li>
+
+    </ol>
+    <p class="install-note">
+      <span class="t-en">Architecture, <code>/coach</code> config keys, and known limitations are in the
+        <a href="#discord-setup">OpenClaw + Discord playbook</a> below.</span>
+      <span class="t-th">สถาปัตยกรรม, key ตั้งค่า <code>/coach</code>, และข้อจำกัดที่รู้แล้ว อยู่ที่
+        <a href="#discord-setup">playbook OpenClaw + Discord</a> ข้างล่าง</span>
+    </p>
+    </div>
   </div>
 </section>
 
@@ -1082,16 +1278,27 @@
 
 <section id="playbook">
   <div class="wrap">
+    <div class="ptab-bar" role="tablist" aria-label="Platform">
+      <button class="ptab" type="button" data-platform="cc" role="tab" aria-selected="true">Claude Code</button>
+      <button class="ptab" type="button" data-platform="dc" role="tab" aria-selected="false">OpenClaw + Discord</button>
+    </div>
     <div class="playbook-layout">
       <aside class="toc" aria-label="Playbook contents">
         <p class="toc-title"><span class="t-en">Plays</span><span class="t-th">แผนการเล่น</span></p>
+        <div class="p-cc">
         <a href="#how"><span class="play-no">01</span><span class="t-en">How it works</span><span class="t-th">กลไกการทำงาน</span></a>
         <a href="#config"><span class="play-no">02</span><span class="t-en">Configuration</span><span class="t-th">การตั้งค่า</span></a>
-        <a href="#discord-setup"><span class="play-no">03</span>Discord</a>
-        <a href="#limits"><span class="play-no">04</span><span class="t-en">Limitations</span><span class="t-th">ข้อจำกัด</span></a>
+        <a href="#limits"><span class="play-no">03</span><span class="t-en">Limitations</span><span class="t-th">ข้อจำกัด</span></a>
+        </div>
+        <div class="p-dc">
+        <a href="#discord-setup"><span class="play-no">01</span><span class="t-en">How it works</span><span class="t-th">กลไกการทำงาน</span></a>
+        <a href="#discord-config"><span class="play-no">02</span><span class="t-en">Configuration</span><span class="t-th">การตั้งค่า</span></a>
+        <a href="#discord-limits"><span class="play-no">03</span><span class="t-en">Limitations</span><span class="t-th">ข้อจำกัด</span></a>
+        </div>
       </aside>
       <div class="playbook-content">
 
+        <div class="p-cc">
         <div class="doc-block" id="how">
           <h3><span class="play-no">PLAY 01</span><span class="t-en">How it works</span><span class="t-th">กลไกการทำงาน</span></h3>
           <p>
@@ -1163,18 +1370,49 @@
           </div>
         </div>
 
+        <div class="doc-block" id="limits">
+          <h3><span class="play-no">PLAY 03</span><span class="t-en">Limitations</span><span class="t-th">ข้อจำกัด</span></h3>
+          <div class="bench-card">
+            <ul>
+              <li><span class="t-en">Hooks are POSIX sh scripts — Windows needs Git Bash (untested).</span><span class="t-th">hook เป็น POSIX sh script — Windows ต้องใช้ Git Bash (ยังไม่ได้ทดสอบ)</span></li>
+              <li><span class="t-en">Fail-open: if a hook breaks, prompts pass through untouched and skills stay manually invocable.</span><span class="t-th">fail-open: ถ้า hook พัง prompt ผ่านตามปกติ และ skill ยังเรียกเองได้</span></li>
+              <li><span class="t-en">Coaching adds a small number of output tokens to each turn.</span><span class="t-th">การโค้ชเพิ่ม output tokens เล็กน้อยในแต่ละ turn</span></li>
+              <li><span class="t-en">Enforcement relies on the model following the hook's instruction to invoke the skill — smaller models (e.g. Haiku) may improvise the block's format instead of following the exact template. Sonnet and up follow reliably.</span><span class="t-th">การบังคับใช้อาศัย model ทำตามคำสั่งของ hook ให้เรียก skill — model เล็ก (เช่น Haiku) อาจแต่ง format เองแทนที่จะตาม template เป๊ะ ส่วน Sonnet ขึ้นไปทำตามได้เสถียรกว่า</span></li>
+            </ul>
+          </div>
+        </div>
+        </div>
+
+        <div class="p-dc">
         <div class="doc-block" id="discord-setup">
-          <h3><span class="play-no">PLAY 03</span><span class="t-en">Discord — the away fixture</span><span class="t-th">Discord — สนามเยือน</span></h3>
+          <h3><span class="play-no">PLAY 01</span><span class="t-en">How it works — the away fixture</span><span class="t-th">กลไกการทำงาน — สนามเยือน</span></h3>
           <p>
-            <span class="t-en">Self-host <a href="https://github.com/nuipawarit/claude-coach/tree/main/openclaw">the OpenClaw workspace</a>
-              from this repo, point it at your Discord bot token, and every channel it can read gets the
-              same two coaches. Delivery defaults to <strong>spoiler tags</strong> — the demos above are
-              exactly what lands in the channel.</span>
-            <span class="t-th">Self-host <a href="https://github.com/nuipawarit/claude-coach/tree/main/openclaw">OpenClaw workspace</a>
-              จาก repo นี้ ชี้ไปที่ Discord bot token ของคุณ แล้วทุก channel ที่บอทอ่านได้
-              จะได้โค้ชชุดเดียวกัน ค่าเริ่มต้นส่งแบบ <strong>spoiler tags</strong> —
-              ตัวอย่างข้างบนคือสิ่งที่ลงใน channel จริง ๆ</span>
+            <span class="t-en">The Discord track runs on a self-hosted <a href="https://github.com/nuipawarit/claude-coach/tree/main/openclaw">OpenClaw workspace</a> —
+              a <code>config</code> dir and a <code>workspace</code> dir, however you run the OpenClaw process (the
+              Docker deployment example also persists a home volume for the Claude CLI login). This repo's
+              <code>openclaw/</code> folder is what gets deployed into that workspace: three Discord-flavored skills
+              (<code>coach</code>, <code>prompting-coach-discord</code>,
+              <code>english-coach-discord</code>) plus an <code>AGENTS.md</code> section. Unlike the CLI plugins'
+              per-turn hook, OpenClaw has no per-message injection point — so <code>AGENTS.md</code> is loaded once
+              at session start as <strong>stable context</strong>, and the coaching rules live there for the whole
+              session instead. Delivery defaults to <strong>spoiler tags</strong> — the demos above are exactly
+              what lands in the channel. Step-by-step commands to stand this up live in the
+              <a href="#install">kick-off section</a> above.</span>
+            <span class="t-th">track Discord รันบน <a href="https://github.com/nuipawarit/claude-coach/tree/main/openclaw">OpenClaw workspace</a> แบบ self-host —
+              มี <code>config</code> dir กับ <code>workspace</code> dir ไม่ว่าจะรัน OpenClaw process แบบไหนก็ได้
+              (ถ้าใช้ตัวอย่าง Docker deployment จะมี home volume แบบถาวรไว้เก็บ login ของ Claude CLI เพิ่มด้วย)
+              โฟลเดอร์ <code>openclaw/</code> ใน repo นี้คือสิ่งที่ deploy เข้า
+              workspace นั้น: skill สาม flavour Discord (<code>coach</code>, <code>prompting-coach-discord</code>,
+              <code>english-coach-discord</code>) บวก section ใน <code>AGENTS.md</code> ต่างจาก hook ฝั่ง
+              CLI plugin ที่ฉีดกติกาทุก turn, OpenClaw ไม่มีจุด inject รายข้อความ — <code>AGENTS.md</code> เลยถูกโหลดครั้งเดียวตอน
+              session เริ่มเป็น <strong>stable context</strong> กติกาการโค้ชเลยอยู่ตรงนั้นตลอดทั้ง session
+              ค่าเริ่มต้นส่งแบบ <strong>spoiler tags</strong> — ตัวอย่างข้างบนคือสิ่งที่ลงใน channel จริงๆ
+              คำสั่งแบบทีละขั้นสำหรับตั้งค่าอยู่ที่ <a href="#install">ส่วน kick-off</a> ด้านบน</span>
           </p>
+        </div>
+
+        <div class="doc-block" id="discord-config">
+          <h3><span class="play-no">PLAY 02</span><span class="t-en">Configuration</span><span class="t-th">การตั้งค่า</span></h3>
           <div class="bench-card">
             <h4><span class="t-en">Tune it with</span><span class="t-th">จูนด้วย</span> <code>/coach</code></h4>
             <div class="doc-table-scroll">
@@ -1188,16 +1426,14 @@
           </div>
         </div>
 
-        <div class="doc-block" id="limits">
-          <h3><span class="play-no">PLAY 04</span><span class="t-en">Limitations</span><span class="t-th">ข้อจำกัด</span></h3>
+        <div class="doc-block" id="discord-limits">
+          <h3><span class="play-no">PLAY 03</span><span class="t-en">Limitations</span><span class="t-th">ข้อจำกัด</span></h3>
           <div class="bench-card">
             <ul>
-              <li><span class="t-en">Hooks are POSIX sh scripts — Windows needs Git Bash (untested).</span><span class="t-th">hook เป็น POSIX sh script — Windows ต้องใช้ Git Bash (ยังไม่ได้ทดสอบ)</span></li>
-              <li><span class="t-en">Fail-open: if a hook breaks, prompts pass through untouched and skills stay manually invocable.</span><span class="t-th">fail-open: ถ้า hook พัง prompt ผ่านตามปกติ และ skill ยังเรียกเองได้</span></li>
-              <li><span class="t-en">Coaching adds a small number of output tokens to each turn.</span><span class="t-th">การโค้ชเพิ่ม output tokens เล็กน้อยในแต่ละ turn</span></li>
               <li><span class="t-en">The Discord coach needs a self-hosted OpenClaw instance — it is not a public bot invite.</span><span class="t-th">Discord coach ต้อง self-host OpenClaw เอง — ไม่ใช่บอทสาธารณะที่กด invite ได้</span></li>
             </ul>
           </div>
+        </div>
         </div>
 
       </div>
@@ -1256,6 +1492,48 @@
       var next = site.getAttribute('data-lang') === 'en' ? 'th' : 'en';
       apply(next);
       persist(next);
+    });
+  })();
+
+  (function () {
+    var site = document.getElementById('site');
+    var bars = document.querySelectorAll('.ptab-bar');
+    var KEY = 'claude-coach-platform';
+
+    function saved() {
+      try { return localStorage.getItem(KEY); } catch (e) { return null; }
+    }
+    function persist(platform) {
+      try { localStorage.setItem(KEY, platform); } catch (e) { /* storage unavailable — session-only toggle */ }
+    }
+    function apply(platform) {
+      site.setAttribute('data-platform', platform);
+      bars.forEach(function (bar) {
+        bar.querySelectorAll('.ptab').forEach(function (tab) {
+          var active = tab.getAttribute('data-platform') === platform;
+          tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+      });
+    }
+
+    var initial = saved() || 'cc';
+    apply(initial);
+
+    bars.forEach(function (bar) {
+      bar.querySelectorAll('.ptab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var next = tab.getAttribute('data-platform');
+          if (next === site.getAttribute('data-platform')) return;
+          var before = bar.getBoundingClientRect().top;
+          apply(next);
+          persist(next);
+          var after = bar.getBoundingClientRect().top;
+          var prevBehavior = document.documentElement.style.scrollBehavior;
+          document.documentElement.style.scrollBehavior = 'auto';
+          window.scrollBy(0, after - before);
+          document.documentElement.style.scrollBehavior = prevBehavior;
+        });
+      });
     });
   })();
 </script>
