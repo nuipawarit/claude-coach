@@ -272,6 +272,12 @@ Output:
 
 ```
 
+## Level (จาก config)
+
+Hook ส่งคำว่า `LIGHT LEVEL` มาใน enforcement เมื่อผู้ใช้ตั้ง `level=light` ผ่าน
+`/english-coach:config level light`: ตัดบรรทัด ✨ และคำชมทั้งหมด, Format C ข้ามทั้งก้อน —
+Format A/B ยังทำงานตามปกติและ 🎯 ยังบังคับ ไม่มีคำว่า `LIGHT LEVEL` = full ตาม spec เดิมครบ
+
 ## Skip Rules
 
 Respond normally (no block) when:

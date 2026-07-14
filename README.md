@@ -5,7 +5,7 @@ Two opinionated coaching plugins for Claude Code:
 - **prompting-coach** — every prompt you send gets a one-glance verdict against
   Anthropic's prompting best practices; severely under-specified requests get a
   confirm-first gate before any work starts. Commentary defaults to English and is
-  configurable (`/prompting-coach:toggle lang th`).
+  configurable (`/prompting-coach:config lang th`).
 - **english-coach** — built for Thai-speaking developers: every response ends with a
   compact English lesson based on the prompt you just wrote (translation, correction
   with a Thai why-tip, or praise plus a more idiomatic phrasing).
@@ -21,7 +21,11 @@ Two opinionated coaching plugins for Claude Code:
 ## How it works / Turning it off
 
 Each plugin ships a UserPromptSubmit hook, so coaching runs on every turn by design.
-Silence it anytime: /prompting-coach:toggle off · /english-coach:toggle off
+Silence it anytime: /prompting-coach:config off · /english-coach:config off
+
+Fine-tune both plugins: `/prompting-coach:config level light` · `/english-coach:config level light`
+(light = load-bearing gaps / corrections & translations only, no praise). On Discord (OpenClaw), the
+`/coach` slash command controls the same knobs plus delivery (`spoiler|plain|dm`).
 
 ## Known limitations
 

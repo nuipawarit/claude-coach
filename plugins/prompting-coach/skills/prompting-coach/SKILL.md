@@ -245,6 +245,13 @@ User prompt: `build a REST API for orders in happywork-backend using the same pa
 > 🚀 **Level up**: add a self-check — "before finishing, verify every endpoint covers all the cases the users module does" catches things that slipped through
 ```
 
+## Level (จาก config)
+
+Hook ส่งคำว่า `LIGHT LEVEL` มาใน enforcement เมื่อผู้ใช้ตั้ง `level=light` ผ่าน
+`/prompting-coach:config level light`: emit verdict block เฉพาะ gap ที่ load-bearing จริง
+(เดาผิดแล้วงานเสีย) และข้าม Format B (praise) ทั้งหมด — Gate Rubric ทำงานตามเดิม
+ไม่มีคำว่า `LIGHT LEVEL` = full ตาม spec เดิมครบ
+
 ## Session Noise Control
 
 Coaching is a nudge, not a nag. This skill exists to *train habits*, and nagging kills the signal:

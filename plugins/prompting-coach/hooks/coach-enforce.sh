@@ -3,14 +3,15 @@
 # POSIX sh only. Fail-open: always exit 0.
 FALLBACK_DIR="$HOME/.claude/prompting-coach-data"
 CONF="$FALLBACK_DIR/config"
-# The toggle skill's Bash-tool commands run without CLAUDE_PLUGIN_DATA set
+# The config skill's Bash-tool commands run without CLAUDE_PLUGIN_DATA set
 # (verified: empty in that context) so it always writes to FALLBACK_DIR.
-# Read from there first so toggle state actually takes effect; only fall
+# Read from there first so config state actually takes effect; only fall
 # back to CLAUDE_PLUGIN_DATA/config if the fixed path has never been written.
-# Forward-compat only: nothing writes here today (toggle writes the primary path).
+# Forward-compat only: nothing writes here today (config writes the primary path).
 [ -f "$CONF" ] || CONF="${CLAUDE_PLUGIN_DATA:-$FALLBACK_DIR}/config"
 enabled=1
 lang=en
+level=full
 if [ -f "$CONF" ]; then
   CR=$(printf '\r')
   while IFS='=' read -r k v || [ -n "$k" ]; do
@@ -18,9 +19,12 @@ if [ -f "$CONF" ]; then
     case "$k" in
       enabled) enabled="$v" ;;
       lang) lang="$v" ;;
+      level) level="$v" ;;
     esac
   done < "$CONF"
 fi
 [ "$enabled" = "0" ] && exit 0
-printf '%s' "PROMPTING-COACH ENFORCEMENT: (1) BEFORE starting any work on this prompt, run the prompting-coach skill's pre-flight evaluation - a severe, load-bearing gap on substantial work means the Format G gate (AskUserQuestion) BEFORE any work; its skip rules and Gate Rubric apply. (2) When no gate fires, OPEN the response with the prompting-coach verdict block (Format A or B, exact template) as the FIRST element - omitted only when a skip rule applies. Commentary language: ${lang}."
+LIGHT=""
+[ "$level" = "light" ] && LIGHT=" LIGHT LEVEL: emit the verdict block only for load-bearing gaps (a wrong guess wastes real work); skip Format B praise blocks."
+printf '%s' "PROMPTING-COACH ENFORCEMENT: (1) BEFORE starting any work on this prompt, run the prompting-coach skill's pre-flight evaluation - a severe, load-bearing gap on substantial work means the Format G gate (AskUserQuestion) BEFORE any work; its skip rules and Gate Rubric apply. (2) When no gate fires, OPEN the response with the prompting-coach verdict block (Format A or B, exact template) as the FIRST element - omitted only when a skip rule applies. Commentary language: ${lang}.${LIGHT}"
 exit 0
