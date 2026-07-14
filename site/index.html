@@ -1,0 +1,1264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="claude-coach — coaching for every prompt, in the terminal and on Discord. prompting-coach grades each prompt against Anthropic's best practices; english-coach turns it into an English lesson for Thai-speaking developers. Discord coaching ships via OpenClaw.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📣</text></svg>">
+<title>claude-coach — every prompt trains with a coach</title>
+</head>
+<body>
+<!-- ARTIFACT:START -->
+<style>
+  :root {
+    --field: #17351F;
+    --bench: #0F2416;
+    --pit: #0A1B10;
+    --chalk: #F2EFE6;
+    --chalk-dim: #B9C4B4;
+    --faint: #8FAE93;
+    --line: rgba(242, 239, 230, 0.16);
+    --line-soft: rgba(242, 239, 230, 0.09);
+    --whistle: #F26B1D;
+    --whistle-soft: rgba(242, 107, 29, 0.16);
+    --score: #F5C64B;
+    --score-soft: rgba(245, 198, 75, 0.14);
+    --grass: #7FC98F;
+    --grass-soft: rgba(127, 201, 143, 0.14);
+    --term-ink: #DDE8D6;
+    --term-dim: #8FAE93;
+    --shadow: rgba(0, 0, 0, 0.35);
+    --font-display: "Futura-CondensedExtraBold", "HelveticaNeue-CondensedBlack", "Arial Narrow", Impact, "Noto Sans Thai", "Thonburi", sans-serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", "Thonburi", "Helvetica Neue", sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --field: #F1F3EC;
+      --bench: #FFFFFF;
+      --pit: #142B1A;
+      --chalk: #1C2B20;
+      --chalk-dim: #55665A;
+      --faint: #78877C;
+      --line: rgba(28, 43, 32, 0.20);
+      --line-soft: rgba(28, 43, 32, 0.10);
+      --whistle: #D9560F;
+      --whistle-soft: rgba(217, 86, 15, 0.10);
+      --score: #A87B14;
+      --score-soft: rgba(168, 123, 20, 0.12);
+      --grass: #2E7A44;
+      --grass-soft: rgba(46, 122, 68, 0.11);
+      --shadow: rgba(20, 43, 26, 0.18);
+    }
+  }
+  :root[data-theme="dark"] {
+    --field: #17351F;
+    --bench: #0F2416;
+    --pit: #0A1B10;
+    --chalk: #F2EFE6;
+    --chalk-dim: #B9C4B4;
+    --faint: #8FAE93;
+    --line: rgba(242, 239, 230, 0.16);
+    --line-soft: rgba(242, 239, 230, 0.09);
+    --whistle: #F26B1D;
+    --whistle-soft: rgba(242, 107, 29, 0.16);
+    --score: #F5C64B;
+    --score-soft: rgba(245, 198, 75, 0.14);
+    --grass: #7FC98F;
+    --grass-soft: rgba(127, 201, 143, 0.14);
+    --shadow: rgba(0, 0, 0, 0.35);
+  }
+  :root[data-theme="light"] {
+    --field: #F1F3EC;
+    --bench: #FFFFFF;
+    --pit: #142B1A;
+    --chalk: #1C2B20;
+    --chalk-dim: #55665A;
+    --faint: #78877C;
+    --line: rgba(28, 43, 32, 0.20);
+    --line-soft: rgba(28, 43, 32, 0.10);
+    --whistle: #D9560F;
+    --whistle-soft: rgba(217, 86, 15, 0.10);
+    --score: #A87B14;
+    --score-soft: rgba(168, 123, 20, 0.12);
+    --grass: #2E7A44;
+    --grass-soft: rgba(46, 122, 68, 0.11);
+    --shadow: rgba(20, 43, 26, 0.18);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--chalk);
+    background-color: var(--field);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ---------- language toggle ---------- */
+  #site[data-lang="en"] .t-th { display: none; }
+  #site[data-lang="th"] .t-en { display: none; }
+
+  .wrap { max-width: 1020px; margin: 0 auto; padding: 0 24px; }
+
+  a { color: var(--whistle); text-underline-offset: 3px; }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--whistle);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.82rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--whistle);
+  }
+
+  .scoreboard {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    color: var(--score);
+    background: var(--pit);
+    border: 1px solid var(--score-soft);
+    border-radius: 6px;
+    padding: 4px 12px;
+    white-space: nowrap;
+  }
+
+  /* ---------- nav ---------- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--field);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding-top: 13px;
+    padding-bottom: 13px;
+  }
+  .wordmark {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.06rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--chalk);
+    text-decoration: none;
+    margin-right: auto;
+  }
+  .wordmark .whistle-mark { color: var(--whistle); }
+  nav .links { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+  nav .links a {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--chalk-dim);
+    text-decoration: none;
+  }
+  nav .links a:hover { color: var(--whistle); }
+  .lang-btn {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.76rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--chalk);
+    background: transparent;
+    border: 1.5px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 14px;
+    cursor: pointer;
+  }
+  .lang-btn:hover { border-color: var(--whistle); color: var(--whistle); }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative;
+    padding: 88px 0 44px;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%;
+    width: 2px;
+    background: var(--line-soft);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 340px; height: 340px;
+    border: 2px solid var(--line-soft);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .hero .wrap { position: relative; z-index: 1; }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2.6rem, 7.5vw, 5rem);
+    line-height: 1.02;
+    text-transform: uppercase;
+    letter-spacing: 0.015em;
+    margin: 22px 0 10px;
+    text-wrap: balance;
+    max-width: 16ch;
+  }
+  .strike { position: relative; white-space: nowrap; opacity: 0.5; }
+  .strike::after {
+    content: "";
+    position: absolute;
+    left: -3%; right: -3%; top: 52%;
+    height: 5px;
+    background: var(--whistle);
+    border-radius: 3px;
+    transform: rotate(-2.5deg) scaleX(0);
+    transform-origin: left center;
+    animation: strike-in 0.45s ease-out 0.9s forwards;
+  }
+  @keyframes strike-in { to { transform: rotate(-2.5deg) scaleX(1); } }
+  .fix {
+    display: inline-block;
+    color: var(--whistle);
+    opacity: 0;
+    transform: rotate(-1.5deg) translateY(0.25em);
+    animation: fix-in 0.4s ease-out 1.45s forwards;
+  }
+  @keyframes fix-in { to { opacity: 1; transform: rotate(-1.5deg) translateY(-0.1em); } }
+  .fix .caret-mark {
+    display: block;
+    font-size: 0.5em;
+    line-height: 0;
+    text-align: center;
+    transform: translateY(0.9em);
+  }
+  .margin-note {
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    font-style: italic;
+    color: var(--score);
+    margin: 6px 0 26px;
+    opacity: 0;
+    animation: note-in 0.4s ease-out 2.0s forwards;
+  }
+  @keyframes note-in { to { opacity: 1; } }
+  .hero .lede {
+    max-width: 60ch;
+    color: var(--chalk-dim);
+    font-size: 1.08rem;
+    margin-bottom: 30px;
+  }
+  .hero .lede strong { color: var(--chalk); font-weight: 600; }
+  .hero .lede .pc-word { color: var(--whistle); }
+  .hero .lede .ec-word { color: var(--grass); }
+
+  .cta-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .btn {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.92rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 13px 26px;
+    border-radius: 3px;
+    border: 1.5px solid transparent;
+  }
+  .btn-primary { background: var(--whistle); color: #FFF6EE; }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-ghost { border-color: var(--line); color: var(--chalk); background: transparent; }
+  .btn-ghost:hover { border-color: var(--chalk-dim); }
+
+  /* ---------- terminal windows (Claude CLI) ---------- */
+  .term {
+    background: var(--pit);
+    color: var(--term-ink);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 16px 40px var(--shadow);
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+    line-height: 1.7;
+  }
+  .term-bar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 11px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .term-bar .dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+  .term-bar .dot:nth-child(1) { background: #F26B1D; }
+  .term-bar .dot:nth-child(2) { background: #F5C64B; }
+  .term-bar .dot:nth-child(3) { background: #7FC98F; }
+  .term-bar .term-title {
+    margin-left: 8px;
+    color: var(--term-dim);
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .term-body { padding: 20px 22px 24px; overflow-x: auto; }
+  .term-body .prompt-line { color: var(--term-ink); }
+  .term-body .prompt-line .chev { color: #F26B1D; }
+  .term-body .dim { color: var(--term-dim); font-style: italic; }
+  .term-body .ellipsis { color: var(--term-dim); }
+  .cb {
+    border-left: 3px solid var(--term-dim);
+    padding: 6px 0 6px 14px;
+    margin: 14px 0;
+    white-space: normal;
+  }
+  .cb p { margin: 0; }
+  .cb-pc { border-left-color: #F26B1D; }
+  .cb-ec { border-left-color: #7FC98F; }
+  .cb-gate { border-left-color: #F5C64B; }
+  .caret {
+    display: inline-block;
+    width: 8px; height: 1.05em;
+    background: var(--term-ink);
+    vertical-align: text-bottom;
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .term-sm { font-size: 0.78rem; line-height: 1.65; box-shadow: 0 10px 26px var(--shadow); }
+  .term-sm .term-bar { padding: 9px 12px; }
+  .term-sm .term-bar .dot { width: 9px; height: 9px; }
+  .term-sm .term-body { padding: 14px 16px 16px; }
+  .term-sm .cb { margin: 10px 0; }
+
+  .win-caption {
+    font-size: 0.9rem;
+    color: var(--chalk-dim);
+    margin-top: 12px;
+  }
+  .win-caption strong { color: var(--chalk); font-weight: 600; }
+  .win-caption code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--whistle-soft);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--chalk);
+  }
+
+  .demo { padding: 20px 0 68px; }
+  .term-frame { position: relative; }
+  .stamp {
+    position: absolute;
+    top: -16px;
+    right: 26px;
+    z-index: 1;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--score);
+    border: 2px solid var(--score);
+    border-radius: 4px;
+    padding: 6px 12px 5px;
+    background: var(--field);
+    transform: rotate(3deg);
+    opacity: 0.95;
+  }
+
+  /* ---------- discord windows ---------- */
+  .dc {
+    background: #313338;
+    color: #DBDEE1;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 10px 26px var(--shadow);
+    overflow: hidden;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+  .dc-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #2B2D31;
+    border-bottom: 1px solid #1E1F22;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #F2F3F5;
+  }
+  .dc-bar .hash { color: #80848E; font-weight: 700; }
+  .dc-body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 13px; }
+  .msg { display: flex; gap: 10px; }
+  .ava {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+  }
+  .ava.u { background: #5865F2; }
+  .ava.b { background: #23A559; }
+  .msg .who { font-weight: 600; font-size: 0.82rem; margin: 0 0 2px; color: #F2F3F5; }
+  .msg .who .bot-tag {
+    background: #5865F2;
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 1px 5px;
+    margin-left: 6px;
+    vertical-align: 1px;
+  }
+  .msg .who .when { font-weight: 400; font-size: 0.68rem; color: #80848E; margin-left: 8px; }
+  .msg p { margin: 0; }
+  .msg .body-text { color: #DBDEE1; }
+  .embed {
+    border-left: 3px solid #5865F2;
+    background: #2B2D31;
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    margin-top: 6px;
+    font-size: 0.8rem;
+  }
+  .embed.e-pc { border-left-color: #ED4245; }
+  .embed.e-ec { border-left-color: #23A559; }
+  .spoiler {
+    display: inline-block;
+    background: #1E1F22;
+    color: transparent;
+    border-radius: 4px;
+    padding: 0 8px;
+    user-select: none;
+  }
+  .spoiler.open { background: rgba(255, 255, 255, 0.07); color: #DBDEE1; }
+  .slash {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    background: #232428;
+    border: 1px solid #3F4147;
+    border-radius: 6px;
+    padding: 2px 9px;
+    color: #C9CDFB;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .caret { animation: none; }
+    .strike::after { animation: none; transform: rotate(-2.5deg) scaleX(1); }
+    .fix { animation: none; opacity: 1; transform: rotate(-1.5deg) translateY(-0.1em); }
+    .margin-note { animation: none; opacity: 1; }
+  }
+
+  /* ---------- sections ---------- */
+  section { padding: 64px 0; }
+  .section-head { margin-bottom: 36px; }
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.9rem, 4.6vw, 3rem);
+    line-height: 1.05;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-top: 10px;
+    text-wrap: balance;
+  }
+  .section-head h2 em { font-style: normal; color: var(--whistle); }
+  .section-head .sub { color: var(--chalk-dim); max-width: 64ch; margin-top: 10px; }
+  .section-head .sub strong { color: var(--chalk); font-weight: 600; }
+
+  /* ---------- arenas ---------- */
+  .arena-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px 24px;
+    align-items: start;
+  }
+  @media (max-width: 840px) { .arena-grid { grid-template-columns: 1fr; } }
+  .coach-chip {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 3px 12px;
+    border-radius: 999px;
+    border: 1.5px solid var(--whistle);
+    color: var(--whistle);
+    margin-bottom: 10px;
+  }
+  .arena-item.ec .coach-chip { border-color: var(--grass); color: var(--grass); }
+  .arena-item.dc-item .coach-chip { border-color: #7983F5; color: #9BA3F9; }
+  @media (prefers-color-scheme: light) {
+    .arena-item.dc-item .coach-chip { border-color: #4752C4; color: #4752C4; }
+  }
+  :root[data-theme="light"] .arena-item.dc-item .coach-chip { border-color: #4752C4; color: #4752C4; }
+  :root[data-theme="dark"] .arena-item.dc-item .coach-chip { border-color: #7983F5; color: #9BA3F9; }
+
+  .bench-card {
+    background: var(--bench);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 22px 24px;
+  }
+  .bench-card h4 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .bench-card p, .bench-card li { color: var(--chalk-dim); font-size: 0.92rem; }
+  .bench-card p strong { color: var(--chalk); }
+  .bench-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .bench-card li::before { content: "— "; color: var(--whistle); }
+
+  /* ---------- install ---------- */
+  #install { padding-bottom: 88px; }
+  .install-line { display: flex; align-items: center; gap: 12px; padding: 3px 0; }
+  .install-line code {
+    flex: 1;
+    overflow-x: auto;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+  }
+  .install-line .chev { color: #F26B1D; }
+  .copy {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--term-dim);
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 5px;
+    padding: 3px 9px;
+    cursor: pointer;
+    flex: none;
+  }
+  .copy:hover { color: var(--term-ink); border-color: var(--term-dim); }
+  .install-note { margin-top: 14px; color: var(--chalk-dim); font-size: 0.92rem; }
+  .install-note code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--whistle-soft);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--chalk);
+  }
+
+  /* ---------- playbook divider ---------- */
+  .playbook-rule {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 10px 0;
+  }
+  .playbook-rule::before, .playbook-rule::after {
+    content: "";
+    flex: 1;
+    border-top: 2px solid var(--line);
+  }
+  .playbook-rule span {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.92rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--score);
+  }
+
+  /* ---------- playbook (manual) ---------- */
+  #playbook { padding-top: 44px; }
+  .playbook-layout { display: grid; grid-template-columns: 220px 1fr; gap: 44px; align-items: start; }
+  @media (max-width: 900px) { .playbook-layout { grid-template-columns: 1fr; gap: 0; } }
+  .toc { position: sticky; top: 76px; }
+  @media (max-width: 900px) {
+    .toc { position: static; display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 26px; }
+  }
+  .toc .toc-title {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.74rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 12px;
+  }
+  @media (max-width: 900px) { .toc .toc-title { display: none; } }
+  .toc a {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--chalk-dim);
+    text-decoration: none;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .toc a .play-no {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--score);
+    margin-right: 10px;
+  }
+  @media (max-width: 900px) {
+    .toc a {
+      border: 1px solid var(--line);
+      background: var(--bench);
+      border-radius: 999px;
+      padding: 4px 14px;
+      font-size: 0.78rem;
+    }
+  }
+  .toc a:hover { color: var(--whistle); }
+
+  .doc-block { padding: 6px 0 42px; }
+  .doc-block h3 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .doc-block h3 .play-no {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    color: var(--score);
+    margin-right: 12px;
+    vertical-align: 3px;
+  }
+  .doc-block > p { color: var(--chalk-dim); max-width: 66ch; margin-bottom: 18px; }
+  .doc-block > p strong { color: var(--chalk); font-weight: 600; }
+  .doc-block > p code, .doc-block li code, .doc-table code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--whistle-soft);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--chalk);
+    white-space: nowrap;
+  }
+
+  .doc-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; align-items: start; }
+  @media (max-width: 840px) { .doc-cols { grid-template-columns: 1fr; } }
+
+  .bench-card h4 .accent-pc { color: var(--whistle); }
+  .bench-card h4 .accent-ec { color: var(--grass); }
+
+  .doc-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  .doc-table td {
+    padding: 8px 12px 8px 0;
+    border-bottom: 1px dashed var(--line);
+    color: var(--chalk-dim);
+    vertical-align: top;
+  }
+  .doc-table tr:last-child td { border-bottom: none; }
+  .doc-table-scroll { overflow-x: auto; }
+
+  /* ---------- footer ---------- */
+  footer {
+    border-top: 2px solid var(--line);
+    padding: 30px 0 48px;
+    color: var(--chalk-dim);
+    font-size: 0.88rem;
+  }
+  footer .wrap { display: flex; gap: 8px 24px; flex-wrap: wrap; }
+</style>
+
+<div id="site" data-lang="en">
+
+<nav aria-label="Page">
+  <div class="wrap">
+    <a class="wordmark" href="#top"><span class="whistle-mark">📣</span> claude·coach</a>
+    <div class="links">
+      <a href="#cli">Terminal</a>
+      <a href="#discord">Discord</a>
+      <a href="#install">Install</a>
+      <a href="#playbook">Playbook</a>
+      <a href="https://github.com/nuipawarit/claude-coach">GitHub</a>
+      <button class="lang-btn" id="langBtn" aria-label="Switch language">ไทย</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <p class="eyebrow">claude-coach · plugin marketplace for Claude Code <span class="scoreboard">COACHED 042</span></p>
+    <h1>Every prompt you send <span class="strike">get</span> <span class="fix"><span class="caret-mark">^</span>gets</span> coached.</h1>
+    <p class="margin-note">
+      <span class="t-en">📣 subject–verb agreement — "every prompt" is singular</span>
+      <span class="t-th">📣 subject–verb agreement — "every prompt" เป็นเอกพจน์ กริยาต้องเติม s</span>
+    </p>
+    <p class="lede">
+      <span class="t-en">Two coaches on the sideline of every session.
+        <strong class="pc-word">prompting-coach</strong> calls out the weak spot in each prompt before
+        Claude starts the play. <strong class="ec-word">english-coach</strong> turns the prompt you just
+        wrote into a one-glance English drill — built for Thai-speaking developers. Same coaches,
+        two grounds: <strong>your terminal</strong> and <strong>your Discord server</strong>.</span>
+      <span class="t-th">โค้ชสองคนยืนข้างสนามทุก session —
+        <strong class="pc-word">prompting-coach</strong> ชี้จุดอ่อนของ prompt ก่อน Claude เริ่มลงเล่น
+        <strong class="ec-word">english-coach</strong> เปลี่ยน prompt ที่คุณเพิ่งพิมพ์เป็นบทเรียนภาษาอังกฤษ
+        อ่านจบในแวบเดียว — สร้างมาเพื่อนักพัฒนาไทย โค้ชชุดเดียวกัน ลงสองสนาม:
+        <strong>terminal ของคุณ</strong> และ <strong>Discord server ของคุณ</strong></span>
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="#install"><span class="t-en">Install in 3 commands</span><span class="t-th">ติดตั้งด้วย 3 คำสั่ง</span></a>
+      <a class="btn btn-ghost" href="#cli"><span class="t-en">Watch the drills</span><span class="t-th">ดูตัวอย่างจริง</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="demo">
+  <div class="wrap">
+    <div class="term-frame">
+      <span class="stamp" aria-hidden="true">coached ✓ full turn</span>
+      <div class="term" role="img" aria-label="A Claude Code session where both plugins coach a prompt">
+        <div class="term-bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="term-title">claude — ~/projects/shop-web</span>
+        </div>
+        <div class="term-body">
+          <p class="prompt-line"><span class="chev">❯</span> ช่วยแก้ bug ตรงหน้า login ให้หน่อย</p>
+          <p class="dim"># prompting-coach — opens the response</p>
+          <div class="cb cb-pc">
+            <p>🧭 <strong>Prompt Coach</strong>: no file named — Claude has to guess where "login" lives</p>
+            <p>✍️ <strong>Try</strong>: "แก้ bug redirect หลัง login ใน src/auth/login.ts — reproduce ก่อนแล้วค่อยแก้"</p>
+            <p>📐 name-targets — a named file stops the guessing before it starts</p>
+          </div>
+          <p class="ellipsis">Found it — the redirect check in src/auth/login.ts:42 ran before the session<br>cookie was set. Fixed and verified. ⋯</p>
+          <p class="dim"># english-coach — closes it</p>
+          <div class="cb cb-ec">
+            <p>🌐 <strong>EN</strong>: "Please fix the bug on the login page."</p>
+            <p>✨ <strong>กระชับ</strong>: "Fix the login page bug."</p>
+            <p>🎯 <strong>ยกระดับ</strong>: "The login page is broken — track it down and fix it." — เป็นธรรมชาติแบบ native</p>
+          </div>
+          <p class="prompt-line"><span class="chev">❯</span> <span class="caret"></span></p>
+        </div>
+      </div>
+    </div>
+    <p class="win-caption">
+      <span class="t-en">One full turn: the <strong>verdict opens</strong> the response, Claude does the actual work,
+        the <strong>English lesson closes</strong> it. Both plugins bookend every turn via a
+        <code>UserPromptSubmit</code> hook — no model discipline required.</span>
+      <span class="t-th">ครบหนึ่ง turn: <strong>verdict เปิด</strong>คำตอบ Claude ทำงานจริงตรงกลาง แล้ว
+        <strong>บทเรียนอังกฤษปิด</strong>ท้าย — สอง plugin ประกบทุก turn ผ่าน hook
+        <code>UserPromptSubmit</code> ไม่ต้องพึ่งความจำของ model</span>
+    </p>
+  </div>
+</div>
+
+<section id="cli">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">home ground · claude cli <span class="scoreboard">DRILLS 04</span></p>
+      <h2>
+        <span class="t-en">In the terminal, <em>every turn</em> is practice</span>
+        <span class="t-th">ในเทอร์มินัล <em>ทุก turn</em> คือการซ้อม</span>
+      </h2>
+      <p class="sub">
+        <span class="t-en">Install the plugins and each prompt runs the drill automatically —
+          <strong style="color: var(--whistle);">prompting-coach</strong> opens the response,
+          <strong style="color: var(--grass);">english-coach</strong> closes it. Four real turns:</span>
+        <span class="t-th">ติดตั้ง plugin แล้วทุก prompt รันการซ้อมอัตโนมัติ —
+          <strong style="color: var(--whistle);">prompting-coach</strong> เปิดคำตอบ
+          <strong style="color: var(--grass);">english-coach</strong> ปิดท้าย สี่ turn จริง:</span>
+      </p>
+    </div>
+    <div class="arena-grid">
+
+      <div class="arena-item pc">
+        <span class="coach-chip">prompting-coach · tune-up</span>
+        <div class="term term-sm" role="img" aria-label="prompting-coach flags a vague prompt and suggests a stronger one">
+          <div class="term-bar">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="term-title">a vague ask gets a stronger version</span>
+          </div>
+          <div class="term-body">
+            <p class="prompt-line"><span class="chev">❯</span> ช่วยดูหน่อย หน้า search มันช้า</p>
+            <div class="cb cb-pc">
+              <p>🧭 <strong>Prompt Coach</strong>: "ดูหน่อย" — unclear if Claude should fix or only diagnose</p>
+              <p>✍️ <strong>Try</strong>: "Profile the /search endpoint — find the slowest query and fix it"</p>
+              <p>📐 action-vs-advice — newer models take "take a look" literally</p>
+            </div>
+            <p class="ellipsis">Profiling /search… ⋯</p>
+          </div>
+        </div>
+        <p class="win-caption">
+          <span class="t-en">The single highest-leverage gap, a prompt you could have typed instead,
+            and the Anthropic principle behind it — then the work starts anyway.</span>
+          <span class="t-th">จุดอ่อนที่คุ้มสุดหนึ่งจุด, prompt ที่คุณควรพิมพ์แทน,
+            และหลักการ Anthropic เบื้องหลัง — แล้วงานก็เริ่มต่อทันที</span>
+        </p>
+      </div>
+
+      <div class="arena-item ec">
+        <span class="coach-chip">english-coach · thai prompt</span>
+        <div class="term term-sm" role="img" aria-label="english-coach translates a Thai prompt into corrected English">
+          <div class="term-bar">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="term-title">a Thai prompt becomes an English lesson</span>
+          </div>
+          <div class="term-body">
+            <p class="prompt-line"><span class="chev">❯</span> ช่วยเขียน test ให้ function นี้หน่อย</p>
+            <p class="ellipsis">Added 6 cases covering the empty-input and overflow paths. ⋯</p>
+            <div class="cb cb-ec">
+              <p>🌐 <strong>EN</strong>: "Please write tests for this function."</p>
+              <p>✨ <strong>กระชับ</strong>: "Write tests for this function."</p>
+              <p>🎯 <strong>ยกระดับ</strong>: "Cover this function with tests — edge cases included."</p>
+            </div>
+          </div>
+        </div>
+        <p class="win-caption">
+          <span class="t-en">Type in Thai, get the answer — and the English you could have written,
+            in three registers, at the end of the reply.</span>
+          <span class="t-th">พิมพ์ไทย ได้คำตอบ — พร้อมภาษาอังกฤษที่คุณควรเขียน
+            สามระดับ อยู่ท้ายคำตอบ</span>
+        </p>
+      </div>
+
+      <div class="arena-item pc">
+        <span class="coach-chip">prompting-coach · gate</span>
+        <div class="term term-sm" role="img" aria-label="prompting-coach gates a severely under-specified request before work starts">
+          <div class="term-bar">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="term-title">a risky ask hits the confirm-first gate</span>
+          </div>
+          <div class="term-body">
+            <p class="prompt-line"><span class="chev">❯</span> รื้อระบบ auth ใหม่ให้หน่อย</p>
+            <div class="cb cb-gate">
+              <p>🚧 <strong>Gate</strong>: an auth rewrite is substantial — and the target state isn't specified</p>
+              <p>❓ Before any code: keep cookie sessions, or move to JWT?</p>
+              <p><strong>1.</strong> Keep cookie sessions&ensp;<strong>2.</strong> Move to JWT&ensp;<strong>3.</strong> Other…</p>
+            </div>
+            <p class="dim"># nothing runs until you answer</p>
+          </div>
+        </div>
+        <p class="win-caption">
+          <span class="t-en">Severely under-specified requests <strong>stop before the work starts</strong> —
+            one question now beats twenty minutes on a guess.</span>
+          <span class="t-th">คำขอที่สเปคขาดหนัก <strong>หยุดก่อนเริ่มงาน</strong> —
+            ถามหนึ่งคำถามตอนนี้ ดีกว่าเดาผิดยี่สิบนาที</span>
+        </p>
+      </div>
+
+      <div class="arena-item ec">
+        <span class="coach-chip">english-coach · correction</span>
+        <div class="term term-sm" role="img" aria-label="english-coach corrects an English prompt with a Thai explanation">
+          <div class="term-bar">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="term-title">a slip gets marked, and explained in Thai</span>
+          </div>
+          <div class="term-body">
+            <p class="prompt-line"><span class="chev">❯</span> please fix bug in login page, it not redirect correctly</p>
+            <p class="ellipsis">Fixed — the guard ran before the cookie was set. ⋯</p>
+            <div class="cb cb-ec">
+              <p>✍️ <strong>Fix</strong>: "Please fix the bug on the login page — it doesn't redirect correctly."</p>
+              <p>💡 <strong>ทำไม</strong>: "it not redirect" ขาดกริยาช่วย — ปฏิเสธใน present simple ต้องใช้ "doesn't"</p>
+            </div>
+          </div>
+        </div>
+        <p class="win-caption">
+          <span class="t-en">English with slips comes back marked up, with the
+            <strong>why in Thai</strong> — grammar you absorb turn by turn.</span>
+          <span class="t-th">ภาษาอังกฤษที่มีพลาดถูกส่งกลับพร้อมรอยแก้ และ
+            <strong>เหตุผลเป็นภาษาไทย</strong> — แกรมมาซึมเข้าไปทีละ turn</span>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="discord">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">away game · discord <span class="scoreboard">DRILLS 03</span></p>
+      <h2>
+        <span class="t-en">On Discord, the coach <em>plays quiet</em></span>
+        <span class="t-th">บน Discord โค้ช<em>เล่นเงียบ ๆ</em></span>
+      </h2>
+      <p class="sub">
+        <span class="t-en">The repo ships an <strong>OpenClaw workspace</strong> — a Discord bot that answers
+          like Claude and coaches every message the same way. Lessons arrive folded in
+          <strong>spoiler tags</strong>, so they never get between you and the answer.</span>
+        <span class="t-th">repo นี้แถม <strong>OpenClaw workspace</strong> — Discord bot ที่ตอบเหมือน Claude
+          และโค้ชทุกข้อความแบบเดียวกัน บทเรียนมาแบบพับใน <strong>spoiler tags</strong>
+          ไม่มีวันเกะกะระหว่างคุณกับคำตอบ</span>
+      </p>
+    </div>
+    <div class="arena-grid">
+
+      <div class="arena-item dc-item">
+        <span class="coach-chip">discord · two-spoiler turn</span>
+        <div class="dc" role="img" aria-label="A Discord channel where the coach bot answers and appends two spoiler-wrapped lessons">
+          <div class="dc-bar"><span class="hash">#</span> ask-coach</div>
+          <div class="dc-body">
+            <div class="msg">
+              <span class="ava u" aria-hidden="true">🧑</span>
+              <div>
+                <p class="who">nhui <span class="when">Today at 14:02</span></p>
+                <p class="body-text">how i can deploy this app?</p>
+              </div>
+            </div>
+            <div class="msg">
+              <span class="ava b" aria-hidden="true">📣</span>
+              <div>
+                <p class="who">OpenClaw Coach <span class="bot-tag">APP</span> <span class="when">Today at 14:02</span></p>
+                <p class="body-text">Push to main — the GitHub Action builds and deploys it. ⋯</p>
+                <div class="embed e-pc">🧭 <span class="spoiler">prompt verdict — tap to reveal</span></div>
+                <div class="embed e-ec">🌐 <span class="spoiler open"><b>EN</b>: "How can I deploy this app?" — "how i can" สลับลำดับ ต้องเป็น "how can I"</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="win-caption">
+          <span class="t-en">Task messages end with <strong>two tap-to-reveal spoilers</strong> —
+            the prompt verdict and the English lesson. Nothing is coached out loud unless you open it.</span>
+          <span class="t-th">ข้อความสั่งงานปิดท้ายด้วย <strong>spoiler แตะเปิดสองอัน</strong> —
+            prompt verdict กับบทเรียนอังกฤษ ไม่มีอะไรโผล่จนกว่าคุณจะเปิดเอง</span>
+        </p>
+      </div>
+
+      <div class="arena-item dc-item">
+        <span class="coach-chip">discord · casual chat</span>
+        <div class="dc" role="img" aria-label="A casual Discord chat where only the English lesson is appended">
+          <div class="dc-bar"><span class="hash">#</span> general</div>
+          <div class="dc-body">
+            <div class="msg">
+              <span class="ava u" aria-hidden="true">🧑</span>
+              <div>
+                <p class="who">nhui <span class="when">Today at 21:40</span></p>
+                <p class="body-text">today i very tired lol</p>
+              </div>
+            </div>
+            <div class="msg">
+              <span class="ava b" aria-hidden="true">📣</span>
+              <div>
+                <p class="who">OpenClaw Coach <span class="bot-tag">APP</span> <span class="when">Today at 21:40</span></p>
+                <p class="body-text">Long day? Ship nothing tonight — rest is part of the sprint. 😄</p>
+                <div class="embed e-ec">🌐 <span class="spoiler open"><b>EN</b>: "I'm really tired today." — ขาด verb to be: "i very tired" ต้องมี "am"</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="win-caption">
+          <span class="t-en">Plain chat skips the prompt verdict — you just get the
+            <strong>English drill</strong>, one spoiler, every message a small rep.</span>
+          <span class="t-th">แชทเล่นข้าม prompt verdict — ได้แค่ <strong>english drill</strong>
+            หนึ่ง spoiler ทุกข้อความคือการซ้อมเล็ก ๆ</span>
+        </p>
+      </div>
+
+      <div class="arena-item dc-item">
+        <span class="coach-chip">discord · /coach control</span>
+        <div class="dc" role="img" aria-label="Configuring the Discord coach with the /coach slash command">
+          <div class="dc-bar"><span class="hash">#</span> ask-coach</div>
+          <div class="dc-body">
+            <div class="msg">
+              <span class="ava u" aria-hidden="true">🧑</span>
+              <div>
+                <p class="who">nhui <span class="when">Today at 14:05</span></p>
+                <p class="body-text"><span class="slash">/coach level light</span></p>
+              </div>
+            </div>
+            <div class="msg">
+              <span class="ava b" aria-hidden="true">📣</span>
+              <div>
+                <p class="who">OpenClaw Coach <span class="bot-tag">APP</span> <span class="when">Today at 14:05</span></p>
+                <p class="body-text">✅ Coaching level → <b>light</b>. Only load-bearing feedback from here on.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="win-caption">
+          <span class="t-en">One slash command tunes the whole bench —
+            <strong>per-user, persisted</strong>. Full options in the playbook below.</span>
+          <span class="t-th">คำสั่ง slash เดียวจูนได้ทั้งม้านั่ง —
+            <strong>รายคน จำข้าม session</strong> ตัวเลือกเต็มอยู่ใน playbook ข้างล่าง</span>
+        </p>
+      </div>
+
+      <div class="arena-item">
+        <div class="bench-card">
+          <h4><span class="t-en">Same coaches, away kit</span><span class="t-th">โค้ชชุดเดิม ใส่ชุดเยือน</span></h4>
+          <p style="margin-bottom: 12px;">
+            <span class="t-en">The Discord coach runs on
+              <a href="https://github.com/nuipawarit/claude-coach/tree/main/openclaw">OpenClaw</a> —
+              a self-hosted gateway that puts Claude in your server. The workspace in this repo adds:</span>
+            <span class="t-th">Discord coach รันบน
+              <a href="https://github.com/nuipawarit/claude-coach/tree/main/openclaw">OpenClaw</a> —
+              gateway แบบ self-host ที่พา Claude เข้า server ของคุณ workspace ใน repo นี้เพิ่ม:</span>
+          </p>
+          <ul>
+            <li><span class="t-en">the same two coaching formats as the CLI plugins</span><span class="t-th">ฟอร์แมตโค้ชสองแบบเดียวกับ plugin ฝั่ง CLI</span></li>
+            <li><span class="t-en">spoiler / plain / DM delivery — your channel stays readable</span><span class="t-th">ส่งแบบ spoiler / plain / DM — channel ยังอ่านง่าย</span></li>
+            <li><span class="t-en"><code>/coach</code> settings per user, persisted across sessions</span><span class="t-th">ตั้งค่า <code>/coach</code> รายคน จำข้าม session</span></li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="eyebrow">kick-off</p>
+      <h2>
+        <span class="t-en">Three commands, <em>inside Claude Code</em></span>
+        <span class="t-th">3 คำสั่ง <em>ใน Claude Code</em></span>
+      </h2>
+    </div>
+    <div class="term term-sm">
+      <div class="term-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="term-title">claude — install</span>
+      </div>
+      <div class="term-body">
+        <div class="install-line">
+          <span class="chev">❯</span>
+          <code>/plugin marketplace add nuipawarit/claude-coach</code>
+          <button class="copy" data-cmd="/plugin marketplace add nuipawarit/claude-coach">copy</button>
+        </div>
+        <div class="install-line">
+          <span class="chev">❯</span>
+          <code>/plugin install prompting-coach@claude-coach</code>
+          <button class="copy" data-cmd="/plugin install prompting-coach@claude-coach">copy</button>
+        </div>
+        <div class="install-line">
+          <span class="chev">❯</span>
+          <code>/plugin install english-coach@claude-coach</code>
+          <button class="copy" data-cmd="/plugin install english-coach@claude-coach">copy</button>
+        </div>
+      </div>
+    </div>
+    <p class="install-note">
+      <span class="t-en">Step 1 registers the marketplace; steps 2–3 are independent — install
+        only the coach you want. The plugins are POSIX sh hooks plus skills, fetched straight from GitHub.
+        Discord setup is its own play — see <code>PLAY 03</code> below.</span>
+      <span class="t-th">คำสั่งแรกลงทะเบียน marketplace; ข้อ 2–3 อิสระต่อกัน — ลงเฉพาะโค้ชที่อยากได้
+        ตัว plugin เป็น POSIX sh hooks + skills ดึงตรงจาก GitHub
+        ส่วน Discord มี play ของตัวเอง — ดู <code>PLAY 03</code> ข้างล่าง</span>
+    </p>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="playbook-rule" role="separator" aria-label="The playbook"><span>The Playbook</span></div>
+</div>
+
+<section id="playbook">
+  <div class="wrap">
+    <div class="playbook-layout">
+      <aside class="toc" aria-label="Playbook contents">
+        <p class="toc-title"><span class="t-en">Plays</span><span class="t-th">แผนการเล่น</span></p>
+        <a href="#how"><span class="play-no">01</span><span class="t-en">How it works</span><span class="t-th">กลไกการทำงาน</span></a>
+        <a href="#config"><span class="play-no">02</span><span class="t-en">Configuration</span><span class="t-th">การตั้งค่า</span></a>
+        <a href="#discord-setup"><span class="play-no">03</span>Discord</a>
+        <a href="#limits"><span class="play-no">04</span><span class="t-en">Limitations</span><span class="t-th">ข้อจำกัด</span></a>
+      </aside>
+      <div class="playbook-content">
+
+        <div class="doc-block" id="how">
+          <h3><span class="play-no">PLAY 01</span><span class="t-en">How it works</span><span class="t-th">กลไกการทำงาน</span></h3>
+          <p>
+            <span class="t-en">Each plugin ships a <code>UserPromptSubmit</code> hook. When you hit enter, the hook injects
+              its coaching rules into the turn — <strong>before Claude reads your request</strong>. That's why
+              coaching can't be forgotten mid-session: the harness enforces it, not the model's memory.</span>
+            <span class="t-th">plugin แต่ละตัวมาพร้อม hook <code>UserPromptSubmit</code> — กด enter ปุ๊บ
+              hook จะฉีดกติกาการโค้ชเข้าไปใน turn <strong>ก่อนที่ Claude จะอ่านคำขอของคุณ</strong>
+              นี่คือเหตุผลที่การโค้ชไม่มีวันถูกลืมกลางคัน: harness เป็นคนบังคับ ไม่ใช่ความจำของ model</span>
+          </p>
+          <div class="doc-cols">
+            <div class="bench-card">
+              <h4><span class="accent-pc">prompting-coach</span> — <span class="t-en">opens the response</span><span class="t-th">เปิดคำตอบ</span></h4>
+              <ul>
+                <li><span class="t-en"><strong>Tune-up</strong> — one highest-leverage gap + a stronger prompt + the principle.</span><span class="t-th"><strong>Tune-up</strong> — จุดอ่อนที่คุ้มสุดหนึ่งจุด + prompt ที่แข็งแรงกว่า + หลักการเบื้องหลัง</span></li>
+                <li><span class="t-en"><strong>Praise</strong> — names the practice you nailed, plus a level-up tip.</span><span class="t-th"><strong>Praise</strong> — บอกชื่อสิ่งที่คุณทำถูก พร้อมทิป level-up</span></li>
+                <li><span class="t-en"><strong>Gate</strong> — severely under-specified substantial work stops for one question first.</span><span class="t-th"><strong>Gate</strong> — งานใหญ่ที่สเปคขาดหนัก หยุดถามหนึ่งคำถามก่อน</span></li>
+              </ul>
+            </div>
+            <div class="bench-card">
+              <h4><span class="accent-ec">english-coach</span> — <span class="t-en">closes the response</span><span class="t-th">ปิดท้ายคำตอบ</span></h4>
+              <ul>
+                <li><span class="t-en"><strong>Thai prompt</strong> — corrected English + concise + idiomatic versions.</span><span class="t-th"><strong>Prompt ภาษาไทย</strong> — อังกฤษฉบับแก้แล้ว + แบบกระชับ + แบบ native</span></li>
+                <li><span class="t-en"><strong>English with slips</strong> — marked up, with the why-tip in Thai.</span><span class="t-th"><strong>อังกฤษมีพลาด</strong> — แก้ให้พร้อมเหตุผลภาษาไทย</span></li>
+                <li><span class="t-en"><strong>Clean English</strong> — ✅ praise + a more native-sounding upgrade.</span><span class="t-th"><strong>อังกฤษสะอาด</strong> — ได้ ✅ พร้อมเวอร์ชันที่ native กว่า</span></li>
+              </ul>
+            </div>
+          </div>
+          <p style="margin-top: 18px;">
+            <span class="t-en">Both plugins are <strong>fail-open</strong>: if a hook ever breaks, your prompt passes
+              through untouched and the skills stay manually invocable. They never touch your files —
+              only the conversation.</span>
+            <span class="t-th">ทั้งสอง plugin เป็น <strong>fail-open</strong>: ถ้า hook พังเมื่อไหร่
+              prompt ของคุณผ่านไปตามปกติ และ skill ยังเรียกเองได้ ไม่แตะไฟล์ของคุณ —
+              อยู่แค่ในบทสนทนาเท่านั้น</span>
+          </p>
+        </div>
+
+        <div class="doc-block" id="config">
+          <h3><span class="play-no">PLAY 02</span><span class="t-en">Configuration</span><span class="t-th">การตั้งค่า</span></h3>
+          <p>
+            <span class="t-en">Coaching runs on every turn by design. Silence it, soften it, or switch its language —
+              one command each, persisted across sessions.</span>
+            <span class="t-th">การโค้ชรันทุก turn โดยตั้งใจ จะปิดเสียง ลดดีกรี หรือเปลี่ยนภาษา —
+              คำสั่งเดียวจบ จำข้าม session</span>
+          </p>
+          <div class="doc-cols">
+            <div class="bench-card">
+              <h4><span class="accent-pc">/prompting-coach:config</span></h4>
+              <div class="doc-table-scroll">
+                <table class="doc-table">
+                  <tr><td><code>on</code> · <code>off</code></td><td><span class="t-en">enable / disable coaching</span><span class="t-th">เปิด / ปิดการโค้ช</span></td></tr>
+                  <tr><td><code>level full|light</code></td><td><span class="t-en">light = load-bearing feedback only</span><span class="t-th">light = เฉพาะ feedback ที่ชี้ขาด</span></td></tr>
+                  <tr><td><code>lang th</code></td><td><span class="t-en">commentary language (English by default)</span><span class="t-th">ภาษา commentary (ค่าเริ่มต้นอังกฤษ)</span></td></tr>
+                  <tr><td><code>status</code></td><td><span class="t-en">show current settings</span><span class="t-th">ดูค่าปัจจุบัน</span></td></tr>
+                </table>
+              </div>
+            </div>
+            <div class="bench-card">
+              <h4><span class="accent-ec">/english-coach:config</span></h4>
+              <div class="doc-table-scroll">
+                <table class="doc-table">
+                  <tr><td><code>on</code> · <code>off</code></td><td><span class="t-en">enable / disable coaching</span><span class="t-th">เปิด / ปิดการโค้ช</span></td></tr>
+                  <tr><td><code>level full|light</code></td><td><span class="t-en">light = corrections only, no praise</span><span class="t-th">light = แก้อย่างเดียว ไม่มีคำชม</span></td></tr>
+                  <tr><td><code>status</code></td><td><span class="t-en">show current settings</span><span class="t-th">ดูค่าปัจจุบัน</span></td></tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-block" id="discord-setup">
+          <h3><span class="play-no">PLAY 03</span><span class="t-en">Discord — the away fixture</span><span class="t-th">Discord — สนามเยือน</span></h3>
+          <p>
+            <span class="t-en">Self-host <a href="https://github.com/nuipawarit/claude-coach/tree/main/openclaw">the OpenClaw workspace</a>
+              from this repo, point it at your Discord bot token, and every channel it can read gets the
+              same two coaches. Delivery defaults to <strong>spoiler tags</strong> — the demos above are
+              exactly what lands in the channel.</span>
+            <span class="t-th">Self-host <a href="https://github.com/nuipawarit/claude-coach/tree/main/openclaw">OpenClaw workspace</a>
+              จาก repo นี้ ชี้ไปที่ Discord bot token ของคุณ แล้วทุก channel ที่บอทอ่านได้
+              จะได้โค้ชชุดเดียวกัน ค่าเริ่มต้นส่งแบบ <strong>spoiler tags</strong> —
+              ตัวอย่างข้างบนคือสิ่งที่ลงใน channel จริง ๆ</span>
+          </p>
+          <div class="bench-card">
+            <h4><span class="t-en">Tune it with</span><span class="t-th">จูนด้วย</span> <code>/coach</code></h4>
+            <div class="doc-table-scroll">
+              <table class="doc-table">
+                <tr><td><code>/coach prompt off</code></td><td><span class="t-en">silence the prompt verdict</span><span class="t-th">ปิด prompt verdict</span></td></tr>
+                <tr><td><code>/coach english off</code></td><td><span class="t-en">silence the English lesson</span><span class="t-th">ปิดบทเรียนอังกฤษ</span></td></tr>
+                <tr><td><code>/coach level light</code></td><td><span class="t-en">load-bearing feedback only</span><span class="t-th">เฉพาะ feedback ที่ชี้ขาด</span></td></tr>
+                <tr><td><code>/coach delivery spoiler|plain|dm</code></td><td><span class="t-en">how lessons arrive</span><span class="t-th">รูปแบบการส่งบทเรียน</span></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-block" id="limits">
+          <h3><span class="play-no">PLAY 04</span><span class="t-en">Limitations</span><span class="t-th">ข้อจำกัด</span></h3>
+          <div class="bench-card">
+            <ul>
+              <li><span class="t-en">Hooks are POSIX sh scripts — Windows needs Git Bash (untested).</span><span class="t-th">hook เป็น POSIX sh script — Windows ต้องใช้ Git Bash (ยังไม่ได้ทดสอบ)</span></li>
+              <li><span class="t-en">Fail-open: if a hook breaks, prompts pass through untouched and skills stay manually invocable.</span><span class="t-th">fail-open: ถ้า hook พัง prompt ผ่านตามปกติ และ skill ยังเรียกเองได้</span></li>
+              <li><span class="t-en">Coaching adds a small number of output tokens to each turn.</span><span class="t-th">การโค้ชเพิ่ม output tokens เล็กน้อยในแต่ละ turn</span></li>
+              <li><span class="t-en">The Discord coach needs a self-hosted OpenClaw instance — it is not a public bot invite.</span><span class="t-th">Discord coach ต้อง self-host OpenClaw เอง — ไม่ใช่บอทสาธารณะที่กด invite ได้</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>MIT License</span>
+    <span><a href="https://github.com/nuipawarit/claude-coach">github.com/nuipawarit/claude-coach</a></span>
+    <span><span class="t-en">Built for Claude Code</span><span class="t-th">สร้างมาเพื่อ Claude Code</span></span>
+  </div>
+</footer>
+
+</div>
+
+<script>
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var cmd = btn.getAttribute('data-cmd');
+      function done(label) {
+        btn.textContent = label;
+        setTimeout(function () { btn.textContent = 'copy'; }, 1600);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cmd).then(function () { done('copied ✓'); },
+          function () { done('select it'); });
+      } else {
+        done('select it');
+      }
+    });
+  });
+
+  (function () {
+    var site = document.getElementById('site');
+    var btn = document.getElementById('langBtn');
+    var KEY = 'claude-coach-lang';
+
+    function saved() {
+      try { return localStorage.getItem(KEY); } catch (e) { return null; }
+    }
+    function persist(lang) {
+      try { localStorage.setItem(KEY, lang); } catch (e) { /* storage unavailable — session-only toggle */ }
+    }
+    function apply(lang) {
+      site.setAttribute('data-lang', lang);
+      document.documentElement.setAttribute('lang', lang);
+      btn.textContent = lang === 'en' ? 'ไทย' : 'EN';
+    }
+
+    var initial = saved() || 'en';
+    apply(initial);
+
+    btn.addEventListener('click', function () {
+      var next = site.getAttribute('data-lang') === 'en' ? 'th' : 'en';
+      apply(next);
+      persist(next);
+    });
+  })();
+</script>
+<!-- ARTIFACT:END -->
+</body>
+</html>
