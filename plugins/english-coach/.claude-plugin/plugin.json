@@ -1,8 +1,16 @@
 {
   "name": "english-coach",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "English coaching for Thai-speaking developers - appends a compact English-learning block to every response: translation, correction with Thai tips, or praise with idiomatic upgrades.",
-  "author": { "name": "nhui" },
+  "author": {
+    "name": "nhui"
+  },
   "license": "MIT",
-  "keywords": ["english", "thai", "language-learning", "coaching", "hooks"]
+  "keywords": [
+    "english",
+    "thai",
+    "language-learning",
+    "coaching",
+    "hooks"
+  ]
 }

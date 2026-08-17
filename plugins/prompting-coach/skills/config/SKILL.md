@@ -1,69 +1,53 @@
 ---
 name: config
-description: Configure prompting-coach. Usage - /prompting-coach:config on | off | level full|light | lang <code> | status
+description: Configure prompting-coach. Usage - /prompting-coach:config on | off | status
 ---
 
 # prompting-coach config
 
-Manage the prompting-coach plugin state. The state file is `key=value` lines at
-`$HOME/.claude/prompting-coach-data/config` (the primary path). The plugin's UserPromptSubmit
-hook reads this file first and falls back to `${CLAUDE_PLUGIN_DATA}/config` only when the
-primary file does not exist. The hook reads on every prompt.
+Manage the prompting-coach gate. The gate is a `prompt` hook: a small model judges the
+prompt before any work starts, adding roughly a second and nothing to the main context.
 
-Keys: `enabled` (1|0, default 1), `lang` (commentary language code, default en),
-`level` (full|light, default full). `level=light` = emit the verdict block only for
-load-bearing gaps (a wrong guess wastes real work); skip Format B praise blocks.
+**Why `off` uninstalls the hook instead of setting a flag:** a `prompt` hook runs with
+no tools, so it cannot read a config file, and a preceding command hook cannot suppress
+it (both verified live on 2.1.233 — the prompt hook still ran and could not see the
+command hook's output). The only way to turn the gate off is to remove the hook itself.
+
+`lang` and `level` are gone. The gate emits its improved prompt in the user's own
+language automatically, and it already fires only on load-bearing gaps — which is what
+`level=light` meant.
 
 ## Behavior
 
-Parse the argument (`on`, `off`, `level full|light`, `lang <code>`, `status`;
-no argument = `status`), then run the matching shell command with the Bash tool and report
-the resulting state in one line. Unknown argument → reply with the usage line from the
-description; do not write.
+Parse the argument (`on`, `off`, `status`; no argument = `status`), run the matching
+shell command with the Bash tool, and report the resulting state in one line. Unknown
+argument → reply with the usage line from the description; do not write.
 
-Resolve the directory first (same logic in every command):
-
-```sh
-DATA_DIR="$HOME/.claude/prompting-coach-data"; mkdir -p "$DATA_DIR"
-```
-
-Read current values first (same pattern in every write command):
+Resolve the plugin directory first (same logic in every command):
 
 ```sh
-en=$(sed -n 's/^enabled=//p' "$DATA_DIR/config" 2>/dev/null)
-lang=$(sed -n 's/^lang=//p' "$DATA_DIR/config" 2>/dev/null)
-lvl=$(sed -n 's/^level=//p' "$DATA_DIR/config" 2>/dev/null)
-```
-
-- `on`:
-
-```sh
-printf 'enabled=1\nlang=%s\nlevel=%s\n' "${lang:-en}" "${lvl:-full}" > "$DATA_DIR/config"
+PLUGIN_DIR=$(ls -d "$HOME"/.claude/plugins/cache/claude-coach/prompting-coach/*/ 2>/dev/null | sort -V | tail -1)
+HOOKS="$PLUGIN_DIR/hooks/hooks.json"
+DISABLED="$PLUGIN_DIR/hooks/hooks.json.disabled"
 ```
 
 - `off`:
 
 ```sh
-printf 'enabled=0\nlang=%s\nlevel=%s\n' "${lang:-en}" "${lvl:-full}" > "$DATA_DIR/config"
+[ -f "$HOOKS" ] && mv "$HOOKS" "$DISABLED"; echo "gate off"
 ```
 
-- `level <value>` where `<value>` is `full` or `light`:
+- `on`:
 
 ```sh
-printf 'enabled=%s\nlang=%s\nlevel=%s\n' "${en:-1}" "${lang:-en}" "<value>" > "$DATA_DIR/config"
-```
-
-- `lang <code>` (e.g. `th`, `ja`, `pt`):
-
-```sh
-printf 'enabled=%s\nlang=%s\nlevel=%s\n' "${en:-1}" "<code>" "${lvl:-full}" > "$DATA_DIR/config"
+[ -f "$DISABLED" ] && mv "$DISABLED" "$HOOKS"; echo "gate on"
 ```
 
 - `status`:
 
 ```sh
-cat "$DATA_DIR/config" 2>/dev/null || echo "enabled=1 lang=en level=full (default, no config file)"
+if [ -f "$HOOKS" ]; then echo "gate on"; else echo "gate off"; fi
 ```
 
-After writing, confirm to the user: current enabled state + lang + level, and note that
-the change takes effect from the next prompt (the hook runs per prompt).
+After the command, tell the user the resulting state and that it takes effect in the
+next session — hook files are read at session start, not per prompt.
