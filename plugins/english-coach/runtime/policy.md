@@ -31,15 +31,25 @@ enough to select Format A.
 backticks, and `#` would appear literally. Never use them. The only formatting available
 is line breaks and the box rules below.
 
-Every row starts at column 0 — no leading spaces, on any row, ever. The `→` reason line
-is flush left like the rest.
+Every row starts at column 0 — no leading spaces, on any row, ever.
+
+Every content row opens with its own emoji marker, so the rows stay distinguishable
+after the terminal indents the whole block. The marker is fixed per row type and never
+substituted:
+
+```
+💬 EN          📝 คุณเขียน      🔧 แก้ไข
+🎯 กระชับ       🚀 ยกระดับ       🧠 <reason>      💡 <tip>      ✅ เขียนได้ดี
+```
 
 Never pad rows to align a column — Thai vowel marks make column widths unpredictable.
-Each row is `<label> · <value>` and wraps naturally.
+Each row is `<emoji> <label> · <value>` and wraps naturally. The reason and tip rows
+carry the emoji with no label: `🧠 <reason>`.
 
 Keep every row at 60 display columns or fewer so nothing overruns the rules. Thai
-characters count as one column each; combining vowel and tone marks count as zero.
-Shorten the value rather than let a row run past the rule.
+characters count as one column each; combining vowel and tone marks count as zero; each
+emoji marker counts as two, plus one for the space after it. Shorten the value rather
+than let a row run past the rule.
 
 ## Language rule
 
@@ -51,43 +61,44 @@ The translated / corrected / concise / upgraded sentences: English.
 
 ```
 ✻ English ──────────────────────────────────────────────────────
-EN · <idiomatic English translation of the intent>
-กระชับ · <shorter version, same meaning>
-ยกระดับ · <more idiomatic version>
-→ <Thai reason, 55 chars or fewer>
+💬 EN · <idiomatic English translation of the intent>
+🎯 กระชับ · <shorter version, same meaning>
+🚀 ยกระดับ · <more idiomatic version>
+🧠 <Thai reason, 55 chars or fewer>
 ────────────────────────────────────────────────────────────────
 ```
 
 Translate by intent, not word by word. Thai fillers (`หน่อย`, `ครับ`, `ค่ะ`) may be
-dropped. Keep file paths and identifiers verbatim. Omit the `กระชับ` row when the
-translation is already minimal. Omit the `ยกระดับ` row and its `→` line when the
+dropped. Keep file paths and identifiers verbatim. Omit the `🎯 กระชับ` row when the
+translation is already minimal. Omit the `🚀 ยกระดับ` row and its `🧠` line when the
 translation is already idiomatic — never invent one.
 
 ## Format B — correction (English with an error)
 
 ```
 ✻ English ──────────────────────────────────────────────────────
-คุณเขียน · <verbatim prompt>
-แก้ไข · <corrected sentence>
-กระชับ · <shorter version of the corrected sentence>
-ยกระดับ · <more idiomatic version>
-→ <Thai reason, 55 chars or fewer>
+📝 คุณเขียน · <verbatim prompt>
+🔧 แก้ไข · <corrected sentence>
+🎯 กระชับ · <shorter version of the corrected sentence>
+🚀 ยกระดับ · <more idiomatic version>
+🧠 <Thai reason, 55 chars or fewer>
 💡 <one-line Thai tip explaining why, 55 chars or fewer>
 ────────────────────────────────────────────────────────────────
 ```
 
 Changed tokens cannot be bolded, so name them in the `💡` line instead. Omit the
-`กระชับ` and `ยกระดับ` rows when they add nothing. Multiple errors collapse into a single
-`💡` line. Borderline awkwardness is not an error — use Format C with a `ยกระดับ` row.
+`🎯 กระชับ` and `🚀 ยกระดับ` rows when they add nothing. Multiple errors collapse into a
+single `💡` line. Borderline awkwardness is not an error — use Format C with a
+`🚀 ยกระดับ` row.
 
 ## Format C — praise (clean English)
 
 ```
 ✻ English ──────────────────────────────────────────────────────
 ✅ เขียนได้ดี · <specific Thai compliment, 55 chars or fewer>
-กระชับ · <shorter version>
-ยกระดับ · <more idiomatic version>
-→ <Thai reason, 55 chars or fewer>
+🎯 กระชับ · <shorter version>
+🚀 ยกระดับ · <more idiomatic version>
+🧠 <Thai reason, 55 chars or fewer>
 ────────────────────────────────────────────────────────────────
 ```
 
@@ -98,21 +109,21 @@ Say *why* it is good — never a lifeless "ดีมาก". Omit rows that fit 
 When `level` is `light`:
 
 - Skip Format C entirely -> `{"action":"skip"}`.
-- Drop every `กระชับ` row and all praise wording.
-- Format A and B still apply, and the `ยกระดับ` row becomes **mandatory** on both.
+- Drop every `🎯 กระชับ` row and all praise wording.
+- Format A and B still apply, and the `🚀 ยกระดับ` row becomes **mandatory** on both.
 
 ## Examples
 
 Input: `{"prompt":"ช่วยอธิบาย React Server Components หน่อย","level":"full"}`
 
 ```json
-{"action":"block","text":"✻ English ──────────────────────────────────────────────────────\nEN · Can you explain React Server Components?\nกระชับ · Explain React Server Components.\n────────────────────────────────────────────────────────────────"}
+{"action":"block","text":"✻ English ──────────────────────────────────────────────────────\n💬 EN · Can you explain React Server Components?\n🎯 กระชับ · Explain React Server Components.\n────────────────────────────────────────────────────────────────"}
 ```
 
 Input: `{"prompt":"How I refactor this function?","level":"full"}`
 
 ```json
-{"action":"block","text":"✻ English ──────────────────────────────────────────────────────\nคุณเขียน · How I refactor this function?\nแก้ไข · How do I refactor this function?\nกระชับ · How to refactor this?\n💡 เติม do หน้า I — ประโยคคำถามต้องมี auxiliary นำ subject\n────────────────────────────────────────────────────────────────"}
+{"action":"block","text":"✻ English ──────────────────────────────────────────────────────\n📝 คุณเขียน · How I refactor this function?\n🔧 แก้ไข · How do I refactor this function?\n🎯 กระชับ · How to refactor this?\n💡 เติม do หน้า I — ประโยคคำถามต้องมี auxiliary นำ subject\n────────────────────────────────────────────────────────────────"}
 ```
 
 Input: `{"prompt":"Refactor the login function.","level":"light"}`

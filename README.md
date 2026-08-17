@@ -43,8 +43,8 @@ submit it, and delivers the block at the end of the same turn:
 ```
 Stop says:
 ✻ English ──────────────────────────────────────────────────────
-EN · Can you explain React Server Components?
-กระชับ · Explain React Server Components.
+💬 EN · Can you explain React Server Components?
+🎯 กระชับ · Explain React Server Components.
 ────────────────────────────────────────────────────────────────
 ```
 
