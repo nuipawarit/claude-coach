@@ -30,6 +30,9 @@ rm -f "$READY" 2>/dev/null
 [ -n "$BLOCK" ] || exit 0
 
 # Top-level systemMessage: shown to the user, kept out of the main model's context.
+#
+# The renderer prints "Stop says: " immediately before the content on the same line, so
+# the block is prefixed with a newline to keep that label off the box's first row.
 printf '%s' "$BLOCK" | python3 -c 'import json,sys
-print(json.dumps({"systemMessage": sys.stdin.read()}))' 2>/dev/null
+print(json.dumps({"systemMessage": "\n" + sys.stdin.read()}))' 2>/dev/null
 exit 0

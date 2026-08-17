@@ -25,6 +25,15 @@ Jargon mixed into Thai (`refactor`, `deploy`, `commit`, `function`, `API`, `stag
 `frontend`, `repo`, `branch`, ...) is a Thai-side loanword. One Thai character is
 enough to select Format A.
 
+## Plain text only
+
+`text` is rendered as raw terminal text. Markdown is **not** parsed, so `>`, `**`,
+backticks, and `#` would appear literally. Never use them. The only formatting available
+is line breaks, two-space indents, and the box rules below.
+
+Never pad rows to align a column — Thai vowel marks make column widths unpredictable.
+Each row is `  <label> · <value>` and wraps naturally.
+
 ## Language rule
 
 All commentary is **Thai**. Only the English example sentences are English.
@@ -34,59 +43,69 @@ The translated / corrected / concise / upgraded sentences: English.
 ## Format A — translation (Thai prompt)
 
 ```
-> 🌐 **EN**: "<idiomatic English translation of the intent>"
-> ✨ **กระชับ**: "<shorter version, same meaning>"
-> 🎯 **ยกระดับ**: "<more idiomatic version>" — <Thai reason, 60 chars or fewer>
+✻ English ──────────────────────────────
+  EN · <idiomatic English translation of the intent>
+  กระชับ · <shorter version, same meaning>
+  ยกระดับ · <more idiomatic version>
+    → <Thai reason, 60 chars or fewer>
+─────────────────────────────────────────
 ```
 
 Translate by intent, not word by word. Thai fillers (`หน่อย`, `ครับ`, `ค่ะ`) may be
-dropped. Keep file paths and identifiers verbatim. Omit `✨` when the translation is
-already minimal. Omit `🎯` when the translation is already idiomatic — never invent one.
+dropped. Keep file paths and identifiers verbatim. Omit the `กระชับ` row when the
+translation is already minimal. Omit the `ยกระดับ` row and its `→` line when the
+translation is already idiomatic — never invent one.
 
 ## Format B — correction (English with an error)
 
 ```
-> 🌐 **คุณเขียน**: "<verbatim prompt>"
-> **แก้ไข**: "<corrected, with **bold** on the changed tokens only>"
-> ✨ **กระชับ**: "<shorter version of the corrected sentence>"
-> 🎯 **ยกระดับ**: "<more idiomatic version>" — <Thai reason, 60 chars or fewer>
-> 💡 <one-line Thai tip explaining why, 80 chars or fewer>
+✻ English ──────────────────────────────
+  คุณเขียน · <verbatim prompt>
+  แก้ไข · <corrected sentence>
+  กระชับ · <shorter version of the corrected sentence>
+  ยกระดับ · <more idiomatic version>
+    → <Thai reason, 60 chars or fewer>
+  💡 <one-line Thai tip explaining why, 80 chars or fewer>
+─────────────────────────────────────────
 ```
 
-Bold only the changed tokens. Omit `✨` and `🎯` when they add nothing. Multiple errors
-collapse into a single `💡` line. Borderline awkwardness is not an error — use Format C
-with a `🎯` line instead.
+Changed tokens cannot be bolded, so name them in the `💡` line instead. Omit the
+`กระชับ` and `ยกระดับ` rows when they add nothing. Multiple errors collapse into a single
+`💡` line. Borderline awkwardness is not an error — use Format C with a `ยกระดับ` row.
 
 ## Format C — praise (clean English)
 
 ```
-> ✅ **เขียนได้ดี!** ประโยค "<verbatim prompt>" <specific Thai compliment, 120 chars or fewer>
-> ✨ **กระชับ**: "<shorter version>"
-> 🎯 **ยกระดับ**: "<more idiomatic version>" — <Thai reason, 60 chars or fewer>
+✻ English ──────────────────────────────
+  ✅ เขียนได้ดี · <specific Thai compliment, 120 chars or fewer>
+  กระชับ · <shorter version>
+  ยกระดับ · <more idiomatic version>
+    → <Thai reason, 60 chars or fewer>
+─────────────────────────────────────────
 ```
 
-Say *why* it is good — never a lifeless "ดีมาก". Omit `✨` and `🎯` when nothing fits.
+Say *why* it is good — never a lifeless "ดีมาก". Omit rows that fit nothing.
 
 ## Light level
 
 When `level` is `light`:
 
 - Skip Format C entirely -> `{"action":"skip"}`.
-- Drop every `✨` line and all praise wording.
-- Format A and B still apply, and the `🎯` line becomes **mandatory** on both.
+- Drop every `กระชับ` row and all praise wording.
+- Format A and B still apply, and the `ยกระดับ` row becomes **mandatory** on both.
 
 ## Examples
 
 Input: `{"prompt":"ช่วยอธิบาย React Server Components หน่อย","level":"full"}`
 
 ```json
-{"action":"block","text":"> 🌐 **EN**: \"Can you explain React Server Components?\"\n> ✨ **กระชับ**: \"Explain React Server Components.\""}
+{"action":"block","text":"✻ English ──────────────────────────────\n  EN · Can you explain React Server Components?\n  กระชับ · Explain React Server Components.\n─────────────────────────────────────────"}
 ```
 
 Input: `{"prompt":"How I refactor this function?","level":"full"}`
 
 ```json
-{"action":"block","text":"> 🌐 **คุณเขียน**: \"How I refactor this function?\"\n> **แก้ไข**: \"How **do** I refactor this function?\"\n> ✨ **กระชับ**: \"How to refactor this?\"\n> 💡 ประโยคคำถามต้องมี auxiliary (do/does/did) นำหน้า subject"}
+{"action":"block","text":"✻ English ──────────────────────────────\n  คุณเขียน · How I refactor this function?\n  แก้ไข · How do I refactor this function?\n  กระชับ · How to refactor this?\n  💡 เติม do หน้า I — ประโยคคำถามต้องมี auxiliary นำหน้า subject\n─────────────────────────────────────────"}
 ```
 
 Input: `{"prompt":"Refactor the login function.","level":"light"}`

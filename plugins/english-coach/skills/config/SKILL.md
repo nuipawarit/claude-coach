@@ -15,8 +15,9 @@ delivered at the end of the same turn. When the main task takes longer than the 
 which is the normal case, it costs no extra waiting at all.
 
 Keys: `enabled` (1|0, default 1), `level` (full|light, default full).
-`level=light` = corrections and translations only: skip praise lines, skip the ✨ line,
-skip Format C entirely; Format A/B still apply with mandatory 🎯.
+`level=light` = corrections and translations only: skip praise wording, skip the
+`กระชับ` row, skip Format C entirely; Format A/B still apply with a mandatory
+`ยกระดับ` row.
 
 ## Behavior
 
