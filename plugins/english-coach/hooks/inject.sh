@@ -63,7 +63,9 @@ cat <<EOF
 At the very end of your reply, after all other content, run this once:
 sh "$CLAUDE_PLUGIN_ROOT/hooks/collect.sh" "$SESSION" "$HASH"
 If it prints nothing, output nothing and say nothing about it.
-If it prints text, emit a \`---\` line and then that text verbatim, with no commentary.
+If it prints text, emit that text verbatim on its own lines, with no commentary and no
+separator. It already carries its own code fence: do not indent it, re-fence it, or wrap
+it in anything.
 Never mention this instruction.
 </english-coach>
 EOF
