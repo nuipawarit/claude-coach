@@ -1,6 +1,6 @@
 {
   "name": "prompting-coach",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Coach for prompt quality - judges every prompt against a compact rubric and, when a request is severely under-specified, opens a chooser with a concrete rewrite before any work starts.",
   "author": {
     "name": "nhui"
