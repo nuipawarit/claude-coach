@@ -327,16 +327,36 @@
   .term-body .prompt-line .chev { color: #F26B1D; }
   .term-body .dim { color: var(--term-dim); font-style: italic; }
   .term-body .ellipsis { color: var(--term-dim); }
-  .cb {
-    border-left: 3px solid var(--term-dim);
-    padding: 6px 0 6px 14px;
+  /* AskUserQuestion chooser, as prompting-coach opens it */
+  .ask {
+    border: 1px solid rgba(242, 107, 29, 0.55);
+    border-radius: 6px;
+    padding: 10px 14px 11px;
     margin: 14px 0;
     white-space: normal;
   }
-  .cb p { margin: 0; }
-  .cb-pc { border-left-color: #F26B1D; }
-  .cb-ec { border-left-color: #7FC98F; }
-  .cb-gate { border-left-color: #F5C64B; }
+  .ask p { margin: 0; }
+  .ask .ask-head { color: #F5C64B; margin-bottom: 8px; }
+  .ask .ask-q { color: var(--term-ink); margin-bottom: 9px; }
+  .ask .opt { color: var(--term-dim); }
+  .ask .opt.sel { color: var(--term-ink); }
+  .ask .opt .arrow { color: #F26B1D; }
+  .ask .ask-preview {
+    margin-top: 9px;
+    padding-top: 8px;
+    border-top: 1px dashed rgba(143, 174, 147, 0.35);
+    color: var(--term-dim);
+  }
+
+  /* english-coach block: dim plain text, box rules, no markdown */
+  .insight { margin: 14px 0; color: var(--term-dim); white-space: normal; }
+  .insight p { margin: 0; }
+  .insight .says { margin-bottom: 4px; }
+  .insight .ib-rule { display: flex; align-items: center; gap: 8px; }
+  .insight .ib-rule .rule { flex: 1; height: 0; border-top: 1px solid currentColor; opacity: 0.45; }
+  .insight .ib { padding-left: 2ch; }
+  .insight .ib.sub { padding-left: 4ch; }
+
   .caret {
     display: inline-block;
     width: 8px; height: 1.05em;
@@ -350,7 +370,7 @@
   .term-sm .term-bar { padding: 9px 12px; }
   .term-sm .term-bar .dot { width: 9px; height: 9px; }
   .term-sm .term-body { padding: 14px 16px 16px; }
-  .term-sm .cb { margin: 10px 0; }
+  .term-sm .ask, .term-sm .insight { margin: 10px 0; }
 
   .win-caption {
     font-size: 0.9rem;
@@ -723,12 +743,13 @@
     </p>
     <p class="lede">
       <span class="t-en">Two coaches on the sideline of every session.
-        <strong class="pc-word">prompting-coach</strong> calls out the weak spot in each prompt before
-        Claude starts the play. <strong class="ec-word">english-coach</strong> turns the prompt you just
+        <strong class="pc-word">prompting-coach</strong> stops the play when a prompt is too vague to run on,
+        and hands you a rewritten one to accept. <strong class="ec-word">english-coach</strong> turns the prompt you just
         wrote into a one-glance English drill — built for Thai-speaking developers. Same coaches,
         two grounds: <strong>your terminal</strong> and <strong>your Discord server</strong>.</span>
       <span class="t-th">โค้ชสองคนยืนข้างสนามทุก session —
-        <strong class="pc-word">prompting-coach</strong> ชี้จุดอ่อนของ prompt ก่อน Claude เริ่มลงเล่น
+        <strong class="pc-word">prompting-coach</strong> หยุดเกมเมื่อ prompt คลุมเครือเกินจะลงมือ
+        แล้วยื่น prompt ฉบับเขียนใหม่ให้กดรับ
         <strong class="ec-word">english-coach</strong> เปลี่ยน prompt ที่คุณเพิ่งพิมพ์เป็นบทเรียนภาษาอังกฤษ
         อ่านจบในแวบเดียว — สร้างมาเพื่อนักพัฒนาไทย โค้ชชุดเดียวกัน ลงสองสนาม:
         <strong>terminal ของคุณ</strong> และ <strong>Discord server ของคุณ</strong></span>
@@ -751,29 +772,36 @@
         </div>
         <div class="term-body">
           <p class="prompt-line"><span class="chev">❯</span> ช่วยแก้ bug ตรงหน้า login ให้หน่อย</p>
-          <p class="dim"># prompting-coach — opens the response</p>
-          <div class="cb cb-pc">
-            <p>🧭 <strong>Prompt Coach</strong>: no file named — Claude has to guess where "login" lives</p>
-            <p>✍️ <strong>Try</strong>: "แก้ bug redirect หลัง login ใน src/auth/login.ts — reproduce ก่อนแล้วค่อยแก้"</p>
-            <p>📐 name-targets — a named file stops the guessing before it starts</p>
+          <p class="dim"># prompting-coach — the gate opens before any tool runs</p>
+          <div class="ask">
+            <p class="ask-head">Prompt gate</p>
+            <p class="ask-q">อาการ bug และไฟล์ที่จะแก้ยังไม่ระบุ — ใช้ prompt ที่เจาะจงกว่าไหม?</p>
+            <p class="opt sel"><span class="arrow">❯</span> 1. ใช้ prompt ที่แนะนำ (Recommended)</p>
+            <p class="opt">&nbsp;&nbsp;2. ใช้ prompt เดิม</p>
+            <p class="opt">&nbsp;&nbsp;3. Other</p>
+            <p class="ask-preview">แก้ bug redirect หลัง login ใน src/auth/login.ts — reproduce ก่อนแล้วค่อยแก้</p>
           </div>
           <p class="ellipsis">Found it — the redirect check in src/auth/login.ts:42 ran before the session<br>cookie was set. Fixed and verified. ⋯</p>
           <p class="dim"># english-coach — closes it</p>
-          <div class="cb cb-ec">
-            <p>🌐 <strong>EN</strong>: "Please fix the bug on the login page."</p>
-            <p>✨ <strong>กระชับ</strong>: "Fix the login page bug."</p>
-            <p>🎯 <strong>ยกระดับ</strong>: "The login page is broken — track it down and fix it." — เป็นธรรมชาติแบบ native</p>
+          <div class="insight">
+            <p class="says">Stop says:</p>
+            <p class="ib-rule"><span>✻ English</span><span class="rule"></span></p>
+            <p class="ib">EN · Please fix the bug on the login page.</p>
+            <p class="ib">กระชับ · Fix the login page bug.</p>
+            <p class="ib">ยกระดับ · The login page is broken — track it down and fix it.</p>
+            <p class="ib sub">→ native พูดถึงอาการก่อน แล้วค่อยสั่งงาน</p>
+            <p class="ib-rule"><span class="rule"></span></p>
           </div>
           <p class="prompt-line"><span class="chev">❯</span> <span class="caret"></span></p>
         </div>
       </div>
     </div>
     <p class="win-caption">
-      <span class="t-en">One full turn: the <strong>verdict opens</strong> the response, Claude does the actual work,
-        the <strong>English lesson closes</strong> it. Both plugins bookend every turn via a
-        <code>UserPromptSubmit</code> hook — no model discipline required.</span>
-      <span class="t-th">ครบหนึ่ง turn: <strong>verdict เปิด</strong>คำตอบ Claude ทำงานจริงตรงกลาง แล้ว
-        <strong>บทเรียนอังกฤษปิด</strong>ท้าย — สอง plugin ประกบทุก turn ผ่าน hook
+      <span class="t-en">One full turn: the <strong>gate opens a real chooser</strong>, you pick with one keypress,
+        Claude does the actual work, the <strong>English lesson closes</strong> it. Both plugins hook
+        <code>UserPromptSubmit</code> — no model discipline required.</span>
+      <span class="t-th">ครบหนึ่ง turn: <strong>gate เปิด chooser จริง</strong> กดเลือกปุ่มเดียว
+        Claude ทำงานจริงตรงกลาง แล้ว <strong>บทเรียนอังกฤษปิด</strong>ท้าย — สอง plugin เกาะ hook
         <code>UserPromptSubmit</code> ไม่ต้องพึ่งความจำของ model</span>
     </p>
   </div>
@@ -789,37 +817,33 @@
       </h2>
       <p class="sub">
         <span class="t-en">Install the plugins and each prompt runs the drill automatically —
-          <strong style="color: var(--whistle);">prompting-coach</strong> opens the response,
-          <strong style="color: var(--grass);">english-coach</strong> closes it. Four real turns:</span>
+          <strong style="color: var(--whistle);">prompting-coach</strong> gates only the prompts that need it,
+          <strong style="color: var(--grass);">english-coach</strong> closes every turn. Four real turns:</span>
         <span class="t-th">ติดตั้ง plugin แล้วทุก prompt รันการซ้อมอัตโนมัติ —
-          <strong style="color: var(--whistle);">prompting-coach</strong> เปิดคำตอบ
-          <strong style="color: var(--grass);">english-coach</strong> ปิดท้าย สี่ turn จริง:</span>
+          <strong style="color: var(--whistle);">prompting-coach</strong> กันเฉพาะ prompt ที่จำเป็น
+          <strong style="color: var(--grass);">english-coach</strong> ปิดท้ายทุก turn สี่ turn จริง:</span>
       </p>
     </div>
     <div class="arena-grid">
 
       <div class="arena-item pc">
-        <span class="coach-chip">prompting-coach · tune-up</span>
-        <div class="term term-sm" role="img" aria-label="prompting-coach flags a vague prompt and suggests a stronger one">
+        <span class="coach-chip">prompting-coach · pass-through</span>
+        <div class="term term-sm" role="img" aria-label="prompting-coach lets a clear prompt through without asking anything">
           <div class="term-bar">
             <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span class="term-title">a vague ask gets a stronger version</span>
+            <span class="term-title">a clear ask never gets stopped</span>
           </div>
           <div class="term-body">
-            <p class="prompt-line"><span class="chev">❯</span> ช่วยดูหน่อย หน้า search มันช้า</p>
-            <div class="cb cb-pc">
-              <p>🧭 <strong>Prompt Coach</strong>: "ดูหน่อย" — unclear if Claude should fix or only diagnose</p>
-              <p>✍️ <strong>Try</strong>: "Profile the /search endpoint — find the slowest query and fix it"</p>
-              <p>📐 action-vs-advice — newer models take "take a look" literally</p>
-            </div>
-            <p class="ellipsis">Profiling /search… ⋯</p>
+            <p class="prompt-line"><span class="chev">❯</span> แก้ operator ผิดใน calc.py:2 เป็น + ให้เลย</p>
+            <p class="dim"># no gate — file named, action explicit, nothing to ask</p>
+            <p class="ellipsis">Edited calc.py:2 — `-` → `+`. Verified with a quick run. ⋯</p>
           </div>
         </div>
         <p class="win-caption">
-          <span class="t-en">The single highest-leverage gap, a prompt you could have typed instead,
-            and the Anthropic principle behind it — then the work starts anyway.</span>
-          <span class="t-th">จุดอ่อนที่คุ้มสุดหนึ่งจุด, prompt ที่คุณควรพิมพ์แทน,
-            และหลักการ Anthropic เบื้องหลัง — แล้วงานก็เริ่มต่อทันที</span>
+          <span class="t-en">Most prompts see nothing at all. The gate fires only when a wrong guess
+            would waste real work — no verdict, no commentary, no extra turn.</span>
+          <span class="t-th">prompt ส่วนใหญ่ไม่เจออะไรเลย gate ทำงานเฉพาะตอนเดาผิดแล้วงานเสียจริง —
+            ไม่มี verdict ไม่มีคำวิจารณ์ ไม่กิน turn เพิ่ม</span>
         </p>
       </div>
 
@@ -833,10 +857,14 @@
           <div class="term-body">
             <p class="prompt-line"><span class="chev">❯</span> ช่วยเขียน test ให้ function นี้หน่อย</p>
             <p class="ellipsis">Added 6 cases covering the empty-input and overflow paths. ⋯</p>
-            <div class="cb cb-ec">
-              <p>🌐 <strong>EN</strong>: "Please write tests for this function."</p>
-              <p>✨ <strong>กระชับ</strong>: "Write tests for this function."</p>
-              <p>🎯 <strong>ยกระดับ</strong>: "Cover this function with tests — edge cases included."</p>
+            <div class="insight">
+              <p class="says">Stop says:</p>
+              <p class="ib-rule"><span>✻ English</span><span class="rule"></span></p>
+              <p class="ib">EN · Please write tests for this function.</p>
+              <p class="ib">กระชับ · Write tests for this function.</p>
+              <p class="ib">ยกระดับ · Cover this function with tests — edge cases included.</p>
+              <p class="ib sub">→ native ใช้ "cover with tests" บ่อยกว่า "write tests"</p>
+              <p class="ib-rule"><span class="rule"></span></p>
             </div>
           </div>
         </div>
@@ -850,26 +878,31 @@
 
       <div class="arena-item pc">
         <span class="coach-chip">prompting-coach · gate</span>
-        <div class="term term-sm" role="img" aria-label="prompting-coach gates a severely under-specified request before work starts">
+        <div class="term term-sm" role="img" aria-label="prompting-coach opens an AskUserQuestion chooser before starting an under-specified rewrite">
           <div class="term-bar">
             <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span class="term-title">a risky ask hits the confirm-first gate</span>
+            <span class="term-title">a risky ask opens a chooser first</span>
           </div>
           <div class="term-body">
             <p class="prompt-line"><span class="chev">❯</span> รื้อระบบ auth ใหม่ให้หน่อย</p>
-            <div class="cb cb-gate">
-              <p>🚧 <strong>Gate</strong>: an auth rewrite is substantial — and the target state isn't specified</p>
-              <p>❓ Before any code: keep cookie sessions, or move to JWT?</p>
-              <p><strong>1.</strong> Keep cookie sessions&ensp;<strong>2.</strong> Move to JWT&ensp;<strong>3.</strong> Other…</p>
+            <div class="ask">
+              <p class="ask-head">Prompt gate</p>
+              <p class="ask-q">rewrite ทั้งระบบ auth แต่ยังไม่บอกว่าจะไปจบที่ session แบบไหน</p>
+              <p class="opt sel"><span class="arrow">❯</span> 1. ใช้ prompt ที่แนะนำ (Recommended)</p>
+              <p class="opt">&nbsp;&nbsp;2. ใช้ prompt เดิม</p>
+              <p class="opt">&nbsp;&nbsp;3. Other</p>
+              <p class="ask-preview">ย้าย auth จาก cookie session ไป JWT ใน src/auth/ — เขียน migration plan ก่อน แล้วรอ approve</p>
             </div>
-            <p class="dim"># nothing runs until you answer</p>
+            <p class="dim"># nothing runs until you pick</p>
           </div>
         </div>
         <p class="win-caption">
-          <span class="t-en">Severely under-specified requests <strong>stop before the work starts</strong> —
-            one question now beats twenty minutes on a guess.</span>
-          <span class="t-th">คำขอที่สเปคขาดหนัก <strong>หยุดก่อนเริ่มงาน</strong> —
-            ถามหนึ่งคำถามตอนนี้ ดีกว่าเดาผิดยี่สิบนาที</span>
+          <span class="t-en">A load-bearing gap opens a real <code>AskUserQuestion</code> chooser —
+            option 1's preview holds the rewritten prompt, "Other" is the edit path.
+            One keypress beats twenty minutes on a guess.</span>
+          <span class="t-th">gap ที่ชี้ขาดจะเปิด <code>AskUserQuestion</code> chooser จริง —
+            preview ของตัวเลือกแรกคือ prompt ที่เขียนใหม่ให้แล้ว ส่วน "Other" คือช่องแก้เอง
+            กดปุ่มเดียวจบ ดีกว่าเดาผิดยี่สิบนาที</span>
         </p>
       </div>
 
@@ -883,9 +916,13 @@
           <div class="term-body">
             <p class="prompt-line"><span class="chev">❯</span> please fix bug in login page, it not redirect correctly</p>
             <p class="ellipsis">Fixed — the guard ran before the cookie was set. ⋯</p>
-            <div class="cb cb-ec">
-              <p>✍️ <strong>Fix</strong>: "Please fix the bug on the login page — it doesn't redirect correctly."</p>
-              <p>💡 <strong>ทำไม</strong>: "it not redirect" ขาดกริยาช่วย — ปฏิเสธใน present simple ต้องใช้ "doesn't"</p>
+            <div class="insight">
+              <p class="says">Stop says:</p>
+              <p class="ib-rule"><span>✻ English</span><span class="rule"></span></p>
+              <p class="ib">คุณเขียน · please fix bug in login page, it not redirect correctly</p>
+              <p class="ib">แก้ไข · Please fix the bug on the login page — it doesn't redirect correctly.</p>
+              <p class="ib">💡 "it not redirect" ขาดกริยาช่วย — ปฏิเสธใน present simple ต้องใช้ "doesn't"</p>
+              <p class="ib-rule"><span class="rule"></span></p>
             </div>
           </div>
         </div>
@@ -1095,60 +1132,64 @@
         <div class="doc-block" id="how">
           <h3><span class="play-no">PLAY 01</span><span class="t-en">How it works</span><span class="t-th">กลไกการทำงาน</span></h3>
           <p>
-            <span class="t-en">Each plugin ships a <code>UserPromptSubmit</code> hook. When you hit enter, the hook injects
-              its coaching rules into the turn — <strong>before Claude reads your request</strong>. That's why
-              coaching can't be forgotten mid-session: the harness enforces it, not the model's memory.</span>
-            <span class="t-th">plugin แต่ละตัวมาพร้อม hook <code>UserPromptSubmit</code> — กด enter ปุ๊บ
-              hook จะฉีดกติกาการโค้ชเข้าไปใน turn <strong>ก่อนที่ Claude จะอ่านคำขอของคุณ</strong>
+            <span class="t-en">Each plugin ships a <code>UserPromptSubmit</code> hook that runs the moment you hit
+              enter — <strong>before Claude reads your request</strong>. That's why coaching can't be forgotten
+              mid-session: the harness enforces it, not the model's memory.</span>
+            <span class="t-th">plugin แต่ละตัวมาพร้อม hook <code>UserPromptSubmit</code> ที่ทำงานทันทีที่กด enter
+              <strong>ก่อนที่ Claude จะอ่านคำขอของคุณ</strong>
               นี่คือเหตุผลที่การโค้ชไม่มีวันถูกลืมกลางคัน: harness เป็นคนบังคับ ไม่ใช่ความจำของ model</span>
           </p>
           <div class="doc-cols">
             <div class="bench-card">
-              <h4><span class="accent-pc">prompting-coach</span> — <span class="t-en">opens the response</span><span class="t-th">เปิดคำตอบ</span></h4>
+              <h4><span class="accent-pc">prompting-coach</span> — <span class="t-en">gates before the work</span><span class="t-th">กันก่อนเริ่มงาน</span></h4>
               <ul>
-                <li><span class="t-en"><strong>Tune-up</strong> — one highest-leverage gap + a stronger prompt + the principle.</span><span class="t-th"><strong>Tune-up</strong> — จุดอ่อนที่คุ้มสุดหนึ่งจุด + prompt ที่แข็งแรงกว่า + หลักการเบื้องหลัง</span></li>
-                <li><span class="t-en"><strong>Praise</strong> — names the practice you nailed, plus a level-up tip.</span><span class="t-th"><strong>Praise</strong> — บอกชื่อสิ่งที่คุณทำถูก พร้อมทิป level-up</span></li>
-                <li><span class="t-en"><strong>Gate</strong> — severely under-specified substantial work stops for one question first.</span><span class="t-th"><strong>Gate</strong> — งานใหญ่ที่สเปคขาดหนัก หยุดถามหนึ่งคำถามก่อน</span></li>
+                <li><span class="t-en">The hook hands a ~1.2 KB rubric to the model <strong>already running your turn</strong> — no sidecar, no second model call.</span><span class="t-th">hook ส่ง rubric ~1.2 KB ให้ model <strong>ตัวที่รัน turn ของคุณอยู่แล้ว</strong> — ไม่มี sidecar ไม่มี model call ที่สอง</span></li>
+                <li><span class="t-en">A load-bearing gap on <em>deliverable</em>, <em>do-vs-advise</em>, or <em>targets</em> opens a real <code>AskUserQuestion</code> chooser.</span><span class="t-th">gap ที่ชี้ขาดเรื่อง <em>deliverable</em>, <em>ทำหรือแค่วิเคราะห์</em>, หรือ <em>เป้าหมาย</em> จะเปิด <code>AskUserQuestion</code> chooser จริง</span></li>
+                <li><span class="t-en">Option 1 previews the rewritten prompt, "Other" lets you edit. Everything else passes through silently.</span><span class="t-th">ตัวเลือกแรก preview prompt ที่เขียนใหม่ให้ "Other" ไว้แก้เอง นอกนั้นผ่านไปเงียบ ๆ</span></li>
               </ul>
             </div>
             <div class="bench-card">
               <h4><span class="accent-ec">english-coach</span> — <span class="t-en">closes the response</span><span class="t-th">ปิดท้ายคำตอบ</span></h4>
               <ul>
                 <li><span class="t-en"><strong>Thai prompt</strong> — corrected English + concise + idiomatic versions.</span><span class="t-th"><strong>Prompt ภาษาไทย</strong> — อังกฤษฉบับแก้แล้ว + แบบกระชับ + แบบ native</span></li>
-                <li><span class="t-en"><strong>English with slips</strong> — marked up, with the why-tip in Thai.</span><span class="t-th"><strong>อังกฤษมีพลาด</strong> — แก้ให้พร้อมเหตุผลภาษาไทย</span></li>
+                <li><span class="t-en"><strong>English with slips</strong> — corrected, with the why-tip in Thai.</span><span class="t-th"><strong>อังกฤษมีพลาด</strong> — แก้ให้พร้อมเหตุผลภาษาไทย</span></li>
                 <li><span class="t-en"><strong>Clean English</strong> — ✅ praise + a more native-sounding upgrade.</span><span class="t-th"><strong>อังกฤษสะอาด</strong> — ได้ ✅ พร้อมเวอร์ชันที่ native กว่า</span></li>
               </ul>
             </div>
           </div>
           <p style="margin-top: 18px;">
-            <span class="t-en">Both plugins are <strong>fail-open</strong>: if a hook ever breaks, your prompt passes
-              through untouched and the skills stay manually invocable. They never touch your files —
-              only the conversation.</span>
-            <span class="t-th">ทั้งสอง plugin เป็น <strong>fail-open</strong>: ถ้า hook พังเมื่อไหร่
-              prompt ของคุณผ่านไปตามปกติ และ skill ยังเรียกเองได้ ไม่แตะไฟล์ของคุณ —
-              อยู่แค่ในบทสนทนาเท่านั้น</span>
+            <span class="t-en">english-coach evaluates in a <strong>background sidecar</strong> started the moment you
+              submit, and delivers at the end of the same turn — because it overlaps the main task, it usually
+              adds no waiting at all. Both plugins are <strong>fail-open</strong>: if a hook ever breaks, your
+              prompt passes through untouched. They never touch your files — only the conversation.</span>
+            <span class="t-th">english-coach ประเมินใน <strong>sidecar เบื้องหลัง</strong> ที่เริ่มทันทีตอนคุณกดส่ง
+              แล้วส่งผลตอนจบ turn เดียวกัน — เพราะทำงานทับกับงานหลัก ปกติจึงไม่ต้องรอเพิ่มเลย
+              ทั้งสอง plugin เป็น <strong>fail-open</strong>: ถ้า hook พังเมื่อไหร่ prompt ของคุณผ่านไปตามปกติ
+              ไม่แตะไฟล์ของคุณ — อยู่แค่ในบทสนทนาเท่านั้น</span>
           </p>
         </div>
 
         <div class="doc-block" id="config">
           <h3><span class="play-no">PLAY 02</span><span class="t-en">Configuration</span><span class="t-th">การตั้งค่า</span></h3>
           <p>
-            <span class="t-en">Coaching runs on every turn by design. Silence it, soften it, or switch its language —
-              one command each, persisted across sessions.</span>
-            <span class="t-th">การโค้ชรันทุก turn โดยตั้งใจ จะปิดเสียง ลดดีกรี หรือเปลี่ยนภาษา —
-              คำสั่งเดียวจบ จำข้าม session</span>
+            <span class="t-en">Both hooks read their config file on <strong>every prompt</strong>, so a change takes
+              effect on your next prompt — no session restart.</span>
+            <span class="t-th">hook ทั้งสองอ่านไฟล์ config <strong>ทุก prompt</strong> เปลี่ยนค่าแล้วมีผลที่ prompt
+              ถัดไปทันที ไม่ต้องเปิด session ใหม่</span>
           </p>
           <div class="doc-cols">
             <div class="bench-card">
               <h4><span class="accent-pc">/prompting-coach:config</span></h4>
               <div class="doc-table-scroll">
                 <table class="doc-table">
-                  <tr><td><code>on</code> · <code>off</code></td><td><span class="t-en">enable / disable coaching</span><span class="t-th">เปิด / ปิดการโค้ช</span></td></tr>
-                  <tr><td><code>level full|light</code></td><td><span class="t-en">light = load-bearing feedback only</span><span class="t-th">light = เฉพาะ feedback ที่ชี้ขาด</span></td></tr>
-                  <tr><td><code>lang th</code></td><td><span class="t-en">commentary language (English by default)</span><span class="t-th">ภาษา commentary (ค่าเริ่มต้นอังกฤษ)</span></td></tr>
+                  <tr><td><code>on</code> · <code>off</code></td><td><span class="t-en">enable / disable the gate</span><span class="t-th">เปิด / ปิด gate</span></td></tr>
                   <tr><td><code>status</code></td><td><span class="t-en">show current settings</span><span class="t-th">ดูค่าปัจจุบัน</span></td></tr>
                 </table>
               </div>
+              <p style="margin-top: 10px;">
+                <span class="t-en">No levels: the gate already fires only on gaps where guessing wrong wastes real work.</span>
+                <span class="t-th">ไม่มี level เพราะ gate ทำงานเฉพาะ gap ที่เดาผิดแล้วงานเสียอยู่แล้ว</span>
+              </p>
             </div>
             <div class="bench-card">
               <h4><span class="accent-ec">/english-coach:config</span></h4>
@@ -1168,12 +1209,14 @@
           <p>
             <span class="t-en">Self-host <a href="https://github.com/nuipawarit/claude-coach/tree/main/openclaw">the OpenClaw workspace</a>
               from this repo, point it at your Discord bot token, and every channel it can read gets the
-              same two coaches. Delivery defaults to <strong>spoiler tags</strong> — the demos above are
-              exactly what lands in the channel.</span>
+              same two coaches. Delivery defaults to <strong>spoiler tags</strong> — the Discord demos above are
+              exactly what lands in the channel. Discord has no chooser widget, so there the prompt coach
+              stays a spoiler-wrapped verdict rather than the CLI's gate.</span>
             <span class="t-th">Self-host <a href="https://github.com/nuipawarit/claude-coach/tree/main/openclaw">OpenClaw workspace</a>
               จาก repo นี้ ชี้ไปที่ Discord bot token ของคุณ แล้วทุก channel ที่บอทอ่านได้
               จะได้โค้ชชุดเดียวกัน ค่าเริ่มต้นส่งแบบ <strong>spoiler tags</strong> —
-              ตัวอย่างข้างบนคือสิ่งที่ลงใน channel จริง ๆ</span>
+              ตัวอย่าง Discord ข้างบนคือสิ่งที่ลงใน channel จริง ๆ Discord ไม่มี widget แบบ chooser
+              ฝั่งนั้น prompt coach จึงยังเป็น verdict ห่อ spoiler ไม่ใช่ gate แบบ CLI</span>
           </p>
           <div class="bench-card">
             <h4><span class="t-en">Tune it with</span><span class="t-th">จูนด้วย</span> <code>/coach</code></h4>
@@ -1193,8 +1236,10 @@
           <div class="bench-card">
             <ul>
               <li><span class="t-en">Hooks are POSIX sh scripts — Windows needs Git Bash (untested).</span><span class="t-th">hook เป็น POSIX sh script — Windows ต้องใช้ Git Bash (ยังไม่ได้ทดสอบ)</span></li>
-              <li><span class="t-en">Fail-open: if a hook breaks, prompts pass through untouched and skills stay manually invocable.</span><span class="t-th">fail-open: ถ้า hook พัง prompt ผ่านตามปกติ และ skill ยังเรียกเองได้</span></li>
-              <li><span class="t-en">Coaching adds a small number of output tokens to each turn.</span><span class="t-th">การโค้ชเพิ่ม output tokens เล็กน้อยในแต่ละ turn</span></li>
+              <li><span class="t-en">Fail-open: if a hook breaks, prompts pass through untouched.</span><span class="t-th">fail-open: ถ้า hook พัง prompt ผ่านตามปกติ</span></li>
+              <li><span class="t-en">Hook output renders as dim plain text with no markdown, so english-coach uses box-drawing rules instead of headings and bold.</span><span class="t-th">output ของ hook แสดงเป็น plain text สี dim ไม่ผ่าน markdown — english-coach จึงใช้เส้นกรอบแทน heading กับตัวหนา</span></li>
+              <li><span class="t-en">english-coach needs an interactive session: its background evaluation is an async hook, and <code>claude -p</code> kills those children on exit.</span><span class="t-th">english-coach ต้องใช้ session แบบ interactive — การประเมินเบื้องหลังเป็น async hook ที่ <code>claude -p</code> ฆ่าทิ้งตอนจบ</span></li>
+              <li><span class="t-en">english-coach costs one small-model call per prompt; prompting-coach costs none, only the rubric's tokens.</span><span class="t-th">english-coach เสีย model call เล็ก ๆ หนึ่งครั้งต่อ prompt; prompting-coach ไม่เสียเลย มีแค่ token ของ rubric</span></li>
               <li><span class="t-en">The Discord coach needs a self-hosted OpenClaw instance — it is not a public bot invite.</span><span class="t-th">Discord coach ต้อง self-host OpenClaw เอง — ไม่ใช่บอทสาธารณะที่กด invite ได้</span></li>
             </ul>
           </div>
