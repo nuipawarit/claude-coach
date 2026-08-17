@@ -42,16 +42,17 @@ submit it. Claude collects the result and prints the block at the end of its own
 in the same turn:
 
 ```
----
-
-**English**
-- 💬 EN · Can you explain `React Server Components`?
-- 🎯 กระชับ · Explain `React Server Components`.
+╭─ ENGLISH ──────────────────────────────
+│ 💬 EN · Can you explain React Server Components?
+│ 🎯 กระชับ · Explain React Server Components.
+╰────────────────────────────────────────
 ```
 
 Because the evaluation overlaps the main task, it usually adds no waiting at all — only a
-short prompt answered instantly can outrun it. The block renders as ordinary markdown in
-the reply rather than as hook output, which the CLI would label `Stop says:`.
+short prompt answered instantly can outrun it. The block arrives as part of the reply
+rather than as hook output, which the CLI would label `Stop says:` — and it is boxed in a
+code fence so it stays distinct from the answer above it instead of reading as one more
+section of it.
 
 When there is nothing to wait for — the plugin is off, the turn carried no prompt text, or
 the sidecar died — the turn ends immediately rather than waiting out the sidecar's window.
