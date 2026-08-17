@@ -42,10 +42,10 @@ submit it, and delivers the block at the end of the same turn:
 
 ```
 Stop says:
-✻ English ──────────────────────────────
-  EN · Can you explain React Server Components?
-  กระชับ · Explain React Server Components.
-─────────────────────────────────────────
+✻ English ──────────────────────────────────────────────────────
+EN · Can you explain React Server Components?
+กระชับ · Explain React Server Components.
+────────────────────────────────────────────────────────────────
 ```
 
 Because the evaluation overlaps the main task, it usually adds no waiting at all — only a
