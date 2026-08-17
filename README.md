@@ -52,6 +52,9 @@ Because the evaluation overlaps the main task, it usually adds no waiting at all
 short prompt answered instantly can outrun it. The block is delivered as a top-level
 `systemMessage`, so it never enters the main model's context.
 
+When there is nothing to wait for — the plugin is off, the turn carried no prompt text, or
+the sidecar died — the turn ends immediately rather than waiting out the sidecar's window.
+
 ## Turning it off
 
 - `/english-coach:config off`
