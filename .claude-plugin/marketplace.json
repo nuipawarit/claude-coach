@@ -8,7 +8,7 @@
     {
       "name": "prompting-coach",
       "source": "./plugins/prompting-coach",
-      "description": "Pre-flight prompt gate: stops severely under-specified requests before work starts and suggests a concrete rewrite. Runs off your main context. Turn off with /prompting-coach:config off",
+      "description": "Pre-flight prompt gate: when a request is severely under-specified, it opens a chooser with a concrete rewrite before work starts. No extra model call. Turn off with /prompting-coach:config off",
       "category": "productivity",
       "keywords": [
         "prompting",
