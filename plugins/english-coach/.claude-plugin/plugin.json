@@ -1,6 +1,6 @@
 {
   "name": "english-coach",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "English coaching for Thai-speaking developers - appends a compact English-learning block to every response: translation, correction with Thai tips, or praise with idiomatic upgrades.",
   "author": {
     "name": "nhui"
