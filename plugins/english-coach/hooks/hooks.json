@@ -5,21 +5,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/inject.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
             "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/prefetch.sh\"",
             "async": true,
             "asyncTimeout": 90000,
             "timeout": 90
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/display.sh\"",
-            "timeout": 45
           }
         ]
       }

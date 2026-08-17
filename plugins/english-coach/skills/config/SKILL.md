@@ -10,9 +10,10 @@ Manage the english-coach plugin state. The state file is `key=value` lines at
 reads this file first and falls back to `${CLAUDE_PLUGIN_DATA}/config` only when the
 primary file does not exist. The hook reads on every prompt.
 
-Coaching runs in a background sidecar started when you submit a prompt, and the block is
-delivered at the end of the same turn. When the main task takes longer than the sidecar,
-which is the normal case, it costs no extra waiting at all.
+Coaching runs in a background sidecar started when you submit a prompt. Claude collects
+the result and prints the block at the end of its own reply, in the same turn. When the
+main task takes longer than the sidecar, which is the normal case, it costs no extra
+waiting at all.
 
 Keys: `enabled` (1|0, default 1), `level` (full|light, default full).
 `level=light` = corrections and translations only: skip praise wording, skip the
