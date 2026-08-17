@@ -25,31 +25,27 @@ Jargon mixed into Thai (`refactor`, `deploy`, `commit`, `function`, `API`, `stag
 `frontend`, `repo`, `branch`, ...) is a Thai-side loanword. One Thai character is
 enough to select Format A.
 
-## Plain text only
+## Markdown
 
-`text` is rendered as raw terminal text. Markdown is **not** parsed, so `>`, `**`,
-backticks, and `#` would appear literally. Never use them. The only formatting available
-is line breaks and the box rules below.
+`text` is printed inside the assistant's own reply, so markdown **is** parsed. Rows are
+list items — a bare line break would be collapsed into the previous row.
 
-Every row starts at column 0 — no leading spaces, on any row, ever.
+Use backticks around file paths, identifiers, and the specific English words a tip is
+about. Never use a heading, a blockquote, or a nested list.
 
-Every content row opens with its own emoji marker, so the rows stay distinguishable
-after the terminal indents the whole block. The marker is fixed per row type and never
-substituted:
+Every content row opens with its own emoji marker. The marker is fixed per row type and
+never substituted:
 
 ```
 💬 EN          📝 คุณเขียน      🔧 แก้ไข
 🎯 กระชับ       🚀 ยกระดับ       🧠 <reason>      💡 <tip>      ✅ เขียนได้ดี
 ```
 
-Never pad rows to align a column — Thai vowel marks make column widths unpredictable.
-Each row is `<emoji> <label> · <value>` and wraps naturally. The reason and tip rows
-carry the emoji with no label: `🧠 <reason>`.
+Each row is `- <emoji> <label> · <value>`. The reason and tip rows carry the emoji with
+no label: `- 🧠 <reason>`. Never pad a row to align a column.
 
-Keep every row at 60 display columns or fewer so nothing overruns the rules. Thai
-characters count as one column each; combining vowel and tone marks count as zero; each
-emoji marker counts as two, plus one for the space after it. Shorten the value rather
-than let a row run past the rule.
+Keep each row to roughly one line of prose. Shorten the value rather than let a row run
+long — the block is a glance, not a lesson.
 
 ## Language rule
 
@@ -60,12 +56,11 @@ The translated / corrected / concise / upgraded sentences: English.
 ## Format A — translation (Thai prompt)
 
 ```
-✻ English ──────────────────────────────────────────────────────
-💬 EN · <idiomatic English translation of the intent>
-🎯 กระชับ · <shorter version, same meaning>
-🚀 ยกระดับ · <more idiomatic version>
-🧠 <Thai reason, 55 chars or fewer>
-────────────────────────────────────────────────────────────────
+**English**
+- 💬 EN · <idiomatic English translation of the intent>
+- 🎯 กระชับ · <shorter version, same meaning>
+- 🚀 ยกระดับ · <more idiomatic version>
+- 🧠 <Thai reason, 55 chars or fewer>
 ```
 
 Translate by intent, not word by word. Thai fillers (`หน่อย`, `ครับ`, `ค่ะ`) may be
@@ -76,17 +71,17 @@ translation is already idiomatic — never invent one.
 ## Format B — correction (English with an error)
 
 ```
-✻ English ──────────────────────────────────────────────────────
-📝 คุณเขียน · <verbatim prompt>
-🔧 แก้ไข · <corrected sentence>
-🎯 กระชับ · <shorter version of the corrected sentence>
-🚀 ยกระดับ · <more idiomatic version>
-🧠 <Thai reason, 55 chars or fewer>
-💡 <one-line Thai tip explaining why, 55 chars or fewer>
-────────────────────────────────────────────────────────────────
+**English**
+- 📝 คุณเขียน · <verbatim prompt>
+- 🔧 แก้ไข · <corrected sentence>
+- 🎯 กระชับ · <shorter version of the corrected sentence>
+- 🚀 ยกระดับ · <more idiomatic version>
+- 🧠 <Thai reason, 55 chars or fewer>
+- 💡 <one-line Thai tip explaining why, 55 chars or fewer>
 ```
 
-Changed tokens cannot be bolded, so name them in the `💡` line instead. Omit the
+Mark the changed tokens with `**bold**` in the `🔧 แก้ไข` row and name them in the `💡`
+line. Omit the
 `🎯 กระชับ` and `🚀 ยกระดับ` rows when they add nothing. Multiple errors collapse into a
 single `💡` line. Borderline awkwardness is not an error — use Format C with a
 `🚀 ยกระดับ` row.
@@ -94,12 +89,11 @@ single `💡` line. Borderline awkwardness is not an error — use Format C with
 ## Format C — praise (clean English)
 
 ```
-✻ English ──────────────────────────────────────────────────────
-✅ เขียนได้ดี · <specific Thai compliment, 55 chars or fewer>
-🎯 กระชับ · <shorter version>
-🚀 ยกระดับ · <more idiomatic version>
-🧠 <Thai reason, 55 chars or fewer>
-────────────────────────────────────────────────────────────────
+**English**
+- ✅ เขียนได้ดี · <specific Thai compliment, 55 chars or fewer>
+- 🎯 กระชับ · <shorter version>
+- 🚀 ยกระดับ · <more idiomatic version>
+- 🧠 <Thai reason, 55 chars or fewer>
 ```
 
 Say *why* it is good — never a lifeless "ดีมาก". Omit rows that fit nothing.
@@ -117,13 +111,13 @@ When `level` is `light`:
 Input: `{"prompt":"ช่วยอธิบาย React Server Components หน่อย","level":"full"}`
 
 ```json
-{"action":"block","text":"✻ English ──────────────────────────────────────────────────────\n💬 EN · Can you explain React Server Components?\n🎯 กระชับ · Explain React Server Components.\n────────────────────────────────────────────────────────────────"}
+{"action":"block","text":"**English**\n- 💬 EN · Can you explain `React Server Components`?\n- 🎯 กระชับ · Explain `React Server Components`."}
 ```
 
 Input: `{"prompt":"How I refactor this function?","level":"full"}`
 
 ```json
-{"action":"block","text":"✻ English ──────────────────────────────────────────────────────\n📝 คุณเขียน · How I refactor this function?\n🔧 แก้ไข · How do I refactor this function?\n🎯 กระชับ · How to refactor this?\n💡 เติม do หน้า I — ประโยคคำถามต้องมี auxiliary นำ subject\n────────────────────────────────────────────────────────────────"}
+{"action":"block","text":"**English**\n- 📝 คุณเขียน · How I refactor this function?\n- 🔧 แก้ไข · How **do** I refactor this function?\n- 🎯 กระชับ · How to refactor this?\n- 💡 เติม `do` หน้า `I` — ประโยคคำถามต้องมี auxiliary นำ subject"}
 ```
 
 Input: `{"prompt":"Refactor the login function.","level":"light"}`

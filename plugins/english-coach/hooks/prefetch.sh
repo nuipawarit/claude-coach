@@ -26,11 +26,12 @@ fi
 [ "$enabled" = "0" ] && exit 0
 command -v python3 >/dev/null 2>&1 || exit 0
 
-# These two exits are the only ones that may skip staging a verdict file, because
-# neither can reach the session's staging path: the config is not yet parsed into a
-# session id, and without python3 there is nothing to parse it with. display.sh bails
-# on both conditions by itself, so it never waits on a verdict nobody will write.
-# Every later exit MUST stage one -- see stage_empty below.
+# The exits above and the two below (empty session id, unhashable prompt) are the only
+# ones that may skip staging a verdict file, because none of them can reach the
+# session's staging path. They are safe because inject.sh derives that same path from
+# the same payload and bails on the same conditions, so it never asks the model to
+# collect a verdict nobody will write. Every later exit MUST stage one -- see
+# stage_empty below.
 
 INPUT=$(cat)
 SESSION=$(printf '%s' "$INPUT" | python3 -c 'import json,sys
@@ -42,12 +43,24 @@ except Exception: pass' 2>/dev/null)
 # An unparsable payload here means display.sh cannot resolve its session either.
 [ -n "$SESSION" ] || exit 0
 
+# Stage under a per-turn key so a verdict can never be mistaken for the previous
+# turn's. Nothing consumes the file on a fixed schedule any more -- collect.sh runs
+# whenever the model gets to it -- so a shared `ready` path would let a slow sidecar
+# hand this turn the last turn's block. The prompt is the only per-turn value both
+# hooks see, and both derive it from the same payload the same way, so they agree
+# without passing state.
+HASH=$(printf '%s' "$PROMPT" | python3 -c 'import hashlib,sys
+print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest()[:16])' 2>/dev/null)
+[ -n "$HASH" ] || exit 0
+
 RUN_DIR="$STATE_DIR/sessions/$SESSION"
 mkdir -p "$RUN_DIR" 2>/dev/null || exit 0
-READY="$RUN_DIR/ready"
-RAW="$RUN_DIR/raw"
-PIDFILE="$RUN_DIR/pid"
-rm -f "$READY" 2>/dev/null
+READY="$RUN_DIR/ready-$HASH"
+RAW="$RUN_DIR/raw-$HASH"
+PIDFILE="$RUN_DIR/pid-$HASH"
+# Sweep the whole session, not just this key: a turn whose block the model never
+# collected would otherwise leave its file behind until SessionEnd.
+rm -f "$RUN_DIR"/ready-* "$RUN_DIR"/pid-* "$RUN_DIR"/raw-* 2>/dev/null
 
 # Publish our pid so display.sh can tell "still evaluating" from "died mid-run" and
 # stop waiting on a verdict that is never coming.

@@ -38,19 +38,20 @@ sidecar and no second model call — the cost is the rubric's tokens, and the ga
 measurable latency of its own.
 
 **english-coach** starts evaluating your prompt in a background sidecar the moment you
-submit it, and delivers the block at the end of the same turn:
+submit it. Claude collects the result and prints the block at the end of its own reply,
+in the same turn:
 
 ```
-Stop says:
-✻ English ──────────────────────────────────────────────────────
-💬 EN · Can you explain React Server Components?
-🎯 กระชับ · Explain React Server Components.
-────────────────────────────────────────────────────────────────
+---
+
+**English**
+- 💬 EN · Can you explain `React Server Components`?
+- 🎯 กระชับ · Explain `React Server Components`.
 ```
 
 Because the evaluation overlaps the main task, it usually adds no waiting at all — only a
-short prompt answered instantly can outrun it. The block is delivered as a top-level
-`systemMessage`, so it never enters the main model's context.
+short prompt answered instantly can outrun it. The block renders as ordinary markdown in
+the reply rather than as hook output, which the CLI would label `Stop says:`.
 
 When there is nothing to wait for — the plugin is off, the turn carried no prompt text, or
 the sidecar died — the turn ends immediately rather than waiting out the sidecar's window.
